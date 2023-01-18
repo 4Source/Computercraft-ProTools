@@ -11,7 +11,7 @@
 
 ----------- Constants -----------
 HELP_PAGES = {'use', 'start', 'restart', 'continue', 'setup'}
-
+ 
 ----------- File Functions ----------- 
 -- Create/Open file and safe data
 function SaveFile( filePath, dataIn )
@@ -64,12 +64,12 @@ config.bAUTO_RESTART = true             -- Auto restart when Turtle turned on
 -- config.bREMOVE_FLUID = true             -- Remove Fluid's in front of the Turtle. (INCOMPATIBLE bFUEL_SAVER)
  
  
-local config_path, config_file_name = "/data/ExcavatePro", "/config"
+local config_path, config_file_name = "/ProTools/ExcavatePro", "/config"
 -- Make sure we have the directory
 if not fs.exists(config_path) then 
     fs.makeDir(config_path)
 end
-
+ 
 -- Initialize Configuration 
 function InitConfig()
     -- Load Configs
@@ -80,7 +80,6 @@ function InitConfig()
  
     -- Create Startup file 
     if config.bAUTO_RESTART then 
-        print()
         local data = 'shell.run("'..shell.getRunningProgram()..' continue")'
  
         local file = io.open("/startup","w")
@@ -90,43 +89,43 @@ function InitConfig()
         end
     end 
 end 
-
-
+ 
+ 
 ----------- State Data ------------
 -- Data table
 local state = {}
-
+ 
 -- Defaults Position
 -- X: Positive = Right | Z: Positive = Forward | Y: Positive = Up
-state.posX, state.posZ, state.posY = 0, 0, 0 		-- Positiok where the Turtle is relative to start 
+state.posX, state.posZ, state.posY = 0, 0, 0        -- Positiok where the Turtle is relative to start 
 state.lastX, state.lastZ, state.lastY = 0, 0, 0    -- Position where the Turtle last digged relative to start  
-state.dirX, state.dirZ, state.dirY = 0, 1, -1 		-- Direction the Turtel move 
-state.sizeX, state.sizeZ, state.sizeY = 0, 0, 0 	-- Target size to dig
+state.dirX, state.dirZ, state.dirY = 0, 1, -1       -- Direction the Turtel move 
+state.sizeX, state.sizeZ, state.sizeY = 0, 0, 0     -- Target size to dig
 state.finished = true 
-
-local state_path, state_file_name = "/data/ExcavatePro", "/state"
+ 
+local state_path, state_file_name = "/ProTools/ExcavatePro", "/state"
 -- Make sure we have the directory
 if not fs.exists(state_path) then 
-	fs.makeDir(state_path)
+    fs.makeDir(state_path)
 end
-
+ 
 -- Load State
 function LoadState()
-	exist, data = LoadFile( state_path..state_file_name )
-	if exist then 
-		state = data
-	end 
+    exist, data = LoadFile( state_path..state_file_name )
+    if exist then 
+        state = data
+    end 
 end
-
+ 
 ----------- UI Functions -----------
 -- Get Input from UI
 function RequestPlayerInput( input_text, helper_text )
-	
-	if not input_text then return false end
-
+    
+    if not input_text then return false end
+ 
     -- Setup UI 
     term.clear()
-	term.setCursorPos(1, 1)
+    term.setCursorPos(1, 1)
     io.write(input_text)
     
     if helper_text then 
@@ -147,7 +146,7 @@ function RequestPlayerInput( input_text, helper_text )
         args[i] = s
         i=i+1
     end
-
+ 
     -- Clear UI
     term.clear()
     term.setCursorPos(1, 1)
@@ -157,55 +156,155 @@ function RequestPlayerInput( input_text, helper_text )
 end
         
 ----------- Move Functions -----------
-
-
+-- Turtle turn left
+function turnLeft()
+    turtle.turnLeft()
+    data.dirX, data.dirZ = -data.dirZ, data.dirX
+    save()
+    --print(data.dirX, data.dirZ)
+end
+ 
+-- Turtle turn rigth
+function turnRight()
+    turtle.turnRight()
+    data.dirX, data.dirZ = data.dirZ, -data.dirX
+    save()
+    --print(data.dirX, data.dirZ)
+end 
+ 
+-- Turtle move up. Returns false if failed.
+function up()
+    if turtle.up() then
+        data.posY = data.posY + data.dirY 
+        save()
+        --print(data.posY)
+        return true
+    end
+    return false
+end
+ 
+-- Turtle move down. Returns false if failed.  
+function down()
+    if turtle.down() then
+        data.posY = data.posY + data.dirY 
+        save()
+        --print(data.posY)
+        return true
+    end
+    return false
+end
+ 
+-- Turtle move forward. Returns false if failed.  
+function forward()
+    if turtle.forward() then
+        data.posX = data.posX + data.dirX
+        data.posZ = data.posZ + data.dirZ
+        save()
+        --print(data.posX, data.posZ)
+        return true
+    end
+    return false
+end 
+ 
+----------- QUARRY FUNCTIONS ------------
+-- Return false if there is no possibly way to move 
+function move()
+    turtle.dig()
+ 
+    if not forward() then      
+        return false 
+    end
+    
+    data.lastX = data.posX 
+    data.lastZ = data.posZ 
+ 
+    -- turtle.digUp()
+    -- turtle.digDown()
+ 
+    -- checkItems()
+    save()
+    return true
+end 
+ 
+-- Return false if the row couldn't complete 
+function row()
+    while false do
+        if not move() then return false end
+    end
+    return true 
+end 
+ 
+-- Return false if the layer couldn't complete 
+function layer()
+    while (state.posX + state.dirX) > state.sizeX do
+        if not row() then return false end
+    end
+    return true 
+end 
+ 
+-- Return false if the excavate couldn't complete 
+function excavate()
+    while (state.posY + state.dirY) > state.sizeY  do
+        if layer() then 
+            if down() then 
+                data.lastY = data.posY 
+            else 
+                return false 
+            end 
+        else 
+            return false 
+        end
+    end
+    return true 
+end
+ 
 ----------- Modes Run -----------
 -- Start Function
 function start()
     -- Get Excavate Size from User input
     local validArgs = false
     while not validArgs do
-		local sizeX
+        local sizeX
         local sizeZ
         local sizeY
-
-		local tArgs = {}
-
-		-- Request X Size
+ 
+        local tArgs = {}
+ 
+        -- Request X Size
         tArgs = RequestPlayerInput( "Excavate X Size: ", "The Number of Blocks to the right of the Turtle, including the Block where the Turtle stands." )
-
-		if #tArgs == 1 then 
-			sizeX = tonumber( tArgs[1] )
-		else
-			sizeX = 0
-		end
-		
-		-- Request Z Size
-		tArgs = RequestPlayerInput( "Excavate Z Size: ", "(optional) The Number of Blocks in front of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <X Size> would be used." )
-
-		if #tArgs == 1 then 
-			sizeZ = tonumber( tArgs[1] )
-		else
-			sizeZ = sizeX
-		end
-
-		-- Request Y Size
-		tArgs = RequestPlayerInput( "Excavate Y Size: ", "(optional) The Number of Blocks the Turtle should go down, including the Block where the Turtle stands. If 0 or not passed in depth is until we hit something we can't dig." )
-
-		if #tArgs == 1 then 
-			sizeY = tonumber( tArgs[1] )
-			sizeY = sizeY * -1
-		else
-			sizeY = 0
-		end
-
-		-- Check inputs Valid and safe in state
+ 
+        if #tArgs == 1 then 
+            sizeX = tonumber( tArgs[1] )
+        else
+            sizeX = 0
+        end
+        
+        -- Request Z Size
+        tArgs = RequestPlayerInput( "Excavate Z Size: ", "(optional) The Number of Blocks in front of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <X Size> would be used." )
+ 
+        if #tArgs == 1 then 
+            sizeZ = tonumber( tArgs[1] )
+        else
+            sizeZ = sizeX
+        end
+ 
+        -- Request Y Size
+        tArgs = RequestPlayerInput( "Excavate Y Size: ", "(optional) The Number of Blocks the Turtle should go down, including the Block where the Turtle stands. If 0 or not passed in depth is until we hit something we can't dig." )
+ 
+        if #tArgs == 1 then 
+            sizeY = tonumber( tArgs[1] )
+            sizeY = sizeY * -1
+        else
+            sizeY = 0
+        end
+ 
+        -- Check inputs Valid and safe in state
         if sizeX >= 1 and sizeZ >= 1 and sizeY <= 0 then
-			state.sizeX = sizeX
-			state.sizeZ = sizeZ
-			state.sizeY = sizeY
-			state.finished = false
-
+            state.sizeX = sizeX
+            state.sizeZ = sizeZ
+            state.sizeY = sizeY
+            state.finished = false
+ 
             if SaveFile( state_path..state_file_name, state ) then 
                 validArgs = true
             end
@@ -213,68 +312,82 @@ function start()
     end
     
     -- Excavate
-    -- while not state.finished do
-        
-    -- end
-
+    if not state.finished then 
+		print("Excavate...")
+        state.finished = excavate()
+    end
+	print("Finish...")
 end
-
+ 
 -- Restart Function
 function restart()
-
+    -- Reset Turtle position in state values 
+ 
+ 
+    -- Excavate
+    if not state.finished then 
+        state.finished = excavate()
+    end 
+ 
 end
-
+ 
 -- Continue Function
 function continue()
-
+    -- Excavate
+    if not state.finished then 
+        state.finished = excavate()
+    end 
 end
-
+ 
 -- Setup Function
 function setup()
-
+ 
 end
-
+ 
 -- Help Function
 function help( topic )
-	-- Help Page for use
-	if topic == "use" then 
-		print( "use" )
-
-	-- Help Page for start
-	elseif topic == "start" then 
-		print( "start" )
-	
-	-- Help Page for restart
-	elseif topic == "restart" then 
-		print( "restart" )
-	
-	-- Help Page for restart
-	elseif topic == "continue" then
-		print( "continue" )
-		
-	-- Help Page for setup
-	elseif topic == "setup" then
-		print( "setup" )		
-
-	else
-		print( "No Help page found for this topic." )  
-		print( "Topic's: 'use', 'start', 'restart', 'continue', 'setup'")
-		return
-	end
+    -- Help Page for use
+    if topic == "use" then 
+        print( "use" )
+ 
+    -- Help Page for start
+    elseif topic == "start" then 
+        print( "start" )
+    
+    -- Help Page for restart
+    elseif topic == "restart" then 
+        print( "restart" )
+    
+    -- Help Page for restart
+    elseif topic == "continue" then
+        print( "continue" )
+        
+    -- Help Page for setup
+    elseif topic == "setup" then
+        print( "setup" )        
+ 
+    else
+        print( "No Help page found for this topic." )  
+        local s = "Topic's: "
+        for h in HELP_PAGES do 
+            s = s..h.." "
+        end 
+        print( s )
+        return
+    end
 end
         
 ----------- RUN -----------
 -- Check for input arguments 
 local tArgs = { ... }
 if #tArgs < 1 then 
-    -- print( "Usage: (program name) <program mode>" )
     print( "Usage: "..shell.getRunningProgram().." <program mode>" ) 
-	return
+    return
 end 
                 
 -- Initialize Configuration 
 InitConfig()
-
+ 
 -- Load state
 LoadState()
                 
@@ -282,58 +395,58 @@ LoadState()
 local pMode = tArgs[1]
 -- Start: Request Player inputs and start digging 
 if pMode == "start" then 
-	if #tArgs > 1 then 
-		print( "Usage: "..shell.getRunningProgram().." start" ) 
-		print( "No extra Arguments allowed in this program mode." )
-		return
-	end 
-
-	print( "Starting..." )
+    if #tArgs > 1 then 
+        print( "Usage: "..shell.getRunningProgram().." start" ) 
+        print( "No extra Arguments allowed in this program mode." )
+        return
+    end 
+ 
+    print( "Starting..." )
     start()
    
 -- Restart: Restarts an old session with position of the Turtle manually placed to Start point 
 elseif pMode == "restart" then 
-	if #tArgs > 1 then 
-		print( "Usage: "..shell.getRunningProgram().." restart" ) 
-		print( "No extra Arguments allowed in this program mode." )
-		return
-	end 
-
-	print( "Restarting..." )
+    if #tArgs > 1 then 
+        print( "Usage: "..shell.getRunningProgram().." restart" ) 
+        print( "No extra Arguments allowed in this program mode." )
+        return
+    end 
+ 
+    print( "Restarting..." )
     restart()
    
 -- Continue: Turtle Stopped program restart at position where stopped 
 elseif pMode == "continue" then
-	if #tArgs > 1 then 
-		print( "Usage: "..shell.getRunningProgram().." continue" ) 
-		print( "No extra Arguments allowed in this program mode." )
-		return
-	end 
-
-	print( "Continue..." )
+    if #tArgs > 1 then 
+        print( "Usage: "..shell.getRunningProgram().." continue" ) 
+        print( "No extra Arguments allowed in this program mode." )
+        return
+    end 
+ 
+    print( "Continue..." )
     continue()
     
 -- Setup: Open Setup Menu to change default behaviors 
 elseif pMode == "setup" then
-	if #tArgs > 1 then 
-		print( "Usage: "..shell.getRunningProgram().." setup" ) 
-		print( "No extra Arguments allowed in this program mode." )
-		return
-	end 
-
-	print( "Open Setup Menu..." )
+    if #tArgs > 1 then 
+        print( "Usage: "..shell.getRunningProgram().." setup" ) 
+        print( "No extra Arguments allowed in this program mode." )
+        return
+    end 
+ 
+    print( "Open Setup Menu..." )
     setup()
     
 -- Help: Shows information about how to use this program 
 elseif pMode == "help" then 
-	if #tArgs ~= 2 then 
-		print( "Usage: "..shell.getRunningProgram().." help <topic>" ) 
-		print( "Topic's: 'use', 'start', 'restart', 'continue', 'setup'")
-		return
-	end 
-
+    if #tArgs ~= 2 then 
+        print( "Usage: "..shell.getRunningProgram().." help <topic>" ) 
+        print( "Topic's: 'use', 'start', 'restart', 'continue', 'setup'")
+        return
+    end 
+ 
     help(tArgs[2])
-    
+-- Invalid     
 else
     print( "Usage: "..shell.getRunningProgram().." <program mode>" )
     print( "Valid <program mode> is required!" )
