@@ -8,8 +8,8 @@
 -- Update: 'pastebin run wHmS4pNS update'
 
 ----------- Helper functions -----------
-function ensureOverride(program)
-    print("Are you shoure you want to override "..program.."? (y/n): ")
+function ensure(program, question)
+    print(question.." (y/n): ")
     local input = io.read()
     if input == "y" then
         return true
@@ -20,11 +20,11 @@ function ensureOverride(program)
     end
 end 
 
-function removeProgram(path)
+function removeFile(path)
     if fs.exists(path) then 
         local sure 
         while sure == nil do 
-            sure = ensureOverride(path)
+            sure = ensure(path, "Are you shoure you want to remove "..path.."?")
         end
         if sure then 
             fs.delete(path)
@@ -39,7 +39,7 @@ function removeProgram(path)
 end
 
 function updateProgram(name, pasteCode)
-	if removeProgram(name) then 
+	if removeFile(name) then 
 		shell.run("pastebin", "get", pasteCode, name)
         print("Update Success.")
         return
@@ -62,7 +62,9 @@ end
 -- Check for input arguments 
 local tArgs = { ... }
 if #tArgs == 1 then 
-    if tArgs[1] == "update" then      
+    if tArgs[1] == "update" then   
+        -- Delete State File
+        removeFile("/ProTools/state")   
         -- ExcavatePro Update
         updateProgram("ExcavatePro", "UmUvXfqs")
 
