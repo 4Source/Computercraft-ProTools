@@ -17,6 +17,8 @@
 
 ----------- Constants -----------
 HELP_PAGES = {'use', 'start', 'restart', 'continue', 'setup'}
+-- Program Version (MAJOR.MINOR.PATCH-PRERELEASE)
+P_VERSION = "0.1.0"
 
 ----------- Utilities -----------
 -- Split Sting 
@@ -56,11 +58,27 @@ function loadJSON( filePath )
     return true, data
 end 
 
+-- Check Version compatibility
+-- Conditions: match(MAJOR and MINOR)
+function versionCompatible(v1, v2) 
+    if v1 ~= v2 then 
+        local v1_labels = split(v1, ".")
+        local v2_labels = split(v2, ".")
+        if v1_labels[1] ~= v2_labels[1] or v1_labels[2] ~= v2_labels[2] then 
+            return false 
+        end
+    end 
+    return true 
+end 
+
 ----------- Config Data ------------
 -- Config table
 local config = {}
  
 -- Defaults
+-- Version of config file
+config.VERSION = "0.1.0"
+
 -- config.MOVE_FAILURE_ATTEMPTS = 5         -- Attempts try to move without success 
  
 -- config.bAUTO_REFUEL = true              -- Auto Refuel from Turtel Inventory
@@ -97,6 +115,9 @@ function initConfig()
     -- Load Configs
     exists, data = loadJSON( config_path..config_file_name )
     if exists then 
+        if not versionCompatible(P_VERSION, data.VERSION) then 
+            error("Incompatible config file. Version is incompatible! Try to update your program or run the setup for this program.")
+        end 
         config = data
     end 
  
@@ -117,6 +138,11 @@ end
 -- Data table
 local state = {}
 
+-- Version of Program this state was created 
+state.VERSION = P_VERSION
+-- The program 
+state.PROGRAM = shell.getRunningProgram()
+
 -- Defaults Position
 -- X: Positive = Right | Z: Positive = Forward | Y: Positive = Up
 state.pos_x, state.pos_z, state.pos_y = 0, 0, 0        -- Positiok where the Turtle is relative to start 
@@ -135,6 +161,12 @@ end
 function initState()
     exists, data = loadJSON( state_path..state_file_name )
     if exists then 
+        if data.PROGRAM ~= shell.getRunningProgram() then 
+            error("Tryed to load state from another Program.")
+        end 
+        if not versionCompatible(P_VERSION, data.VERSION) then 
+            error("Incompatible state file. Version is incompatible! Try to update your program or run the setup for this program.")
+        end  
         state = data
     end 
 end
