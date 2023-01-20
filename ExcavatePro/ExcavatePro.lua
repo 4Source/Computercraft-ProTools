@@ -9,34 +9,40 @@
 -- Usage: (program name) <program mode>
 -- Features: 
 
+----------- Formatting -----------
+-- Constants: Uppercase and Underscores (CONSTANTS_EXAMPEL)
+------ boolean: starts with 'b'  (bIS_CONSTANTS_EXAMPEL) formulated as a statement
+-- Variables: Lowercase and Underscores (variable_example)
+-- Functions: Camelcase (functionExample)
+
 ----------- Constants -----------
 HELP_PAGES = {'use', 'start', 'restart', 'continue', 'setup'}
  
 ----------- File Functions ----------- 
 -- Create/Open file and safe data
-function SaveFile( filePath, dataIn )
+function saveJSON( filePath, dataIn )
     local file = io.open(filePath,"w")
-    local returnValue = true
-    if file then 
-        returnValue= file:write(textutils.serialize(dataIn))
-        returnValue = file:close()
+    if not file then return false end 
+    if file:write(textutils.serializeJSON(dataIn)) then 
+        return file:close()
+    else 
+        return false
     end
-    return returnValue
 end
  
 -- Load file if exists and return Data Table
-function LoadFile( filePath )
+function loadJSON( filePath )
     -- Get file, if exists
     local file = io.open(filePath,"r")
-    local tempData = {}
+    local data = {}
     if not file then return false
     else 
-        tempData = textutils.unserialize(file:read("*a"))
+        data = textutils.unserializeJSON(file:read("*a"))
         file:close()
     end
-    return true, tempData
+    return true, data
 end 
- 
+
 ----------- Config Data ------------
 -- Config table
 local config = {}
@@ -58,23 +64,26 @@ local config = {}
 -- config.CHESTS[1].CHEST_OFFSET_Z = -1    -- Chest Positon offset to Turtle start
 -- config.CHESTS[1].CHEST_OFFSET_Y = 0     -- Chest Positon offset to Turtle start
  
-config.bAUTO_RESTART = true             -- Auto restart when Turtle turned on 
+config.bAUTO_RESTART = true             -- Auto restart when Turtle turned on [Version > 0.1.0]
  
 -- config.bSOLID_WALLS = true              -- In outer ring fill the gabs in wall. (INCOMPATIBLE bFUEL_SAVER)
 -- config.bREMOVE_FLUID = true             -- Remove Fluid's in front of the Turtle. (INCOMPATIBLE bFUEL_SAVER)
  
  
 local config_path, config_file_name = "/ProTools/ExcavatePro", "/config"
--- Make sure we have the directory
-if not fs.exists(config_path) then 
-    fs.makeDir(config_path)
+-- Make sure we have the directory and the file or get the default 
+if not fs.exists(config_path..config_file_name) then 
+    if not fs.exists(config_path) then 
+        fs.makeDir(config_path)
+    end 
+    shell.run("pastebin", "get", W6KuhCeR, config_file_name)
 end
  
 -- Initialize Configuration 
-function InitConfig()
+function initConfig()
     -- Load Configs
-    exist, data = LoadFile( config_path..config_file_name )
-    if exist then 
+    exists, data = loadJSON( config_path..config_file_name )
+    if exists then 
         config = data
     end 
  
@@ -94,32 +103,36 @@ end
 ----------- State Data ------------
 -- Data table
 local state = {}
- 
+
 -- Defaults Position
 -- X: Positive = Right | Z: Positive = Forward | Y: Positive = Up
-state.posX, state.posZ, state.posY = 0, 0, 0        -- Positiok where the Turtle is relative to start 
-state.lastX, state.lastZ, state.lastY = 0, 0, 0    -- Position where the Turtle last digged relative to start  
-state.dirX, state.dirZ, state.dirY = 0, 1, -1       -- Direction the Turtel move 
-state.sizeX, state.sizeZ, state.sizeY = 0, 0, 0     -- Target size to dig
+state.pos_x, state.pos_z, state.pos_y = 0, 0, 0        -- Positiok where the Turtle is relative to start 
+state.last_x, state.last_z, state.last_y = 0, 0, 0    -- Position where the Turtle last digged relative to start  
+state.dir_x, state.dir_z, state.dir_y = 0, 1, -1       -- Direction the Turtel move 
+state.size_x, state.size_z, state.size_y = 0, 0, 0     -- Target size to dig
 state.finished = true 
  
-local state_path, state_file_name = "/ProTools/ExcavatePro", "/state"
+local state_path, state_file_name = "/ProTools", "/state"
 -- Make sure we have the directory
 if not fs.exists(state_path) then 
     fs.makeDir(state_path)
 end
  
 -- Load State
-function LoadState()
-    exist, data = LoadFile( state_path..state_file_name )
-    if exist then 
+function initState()
+    exists, data = loadJSON( state_path..state_file_name )
+    if exists then 
         state = data
     end 
 end
+-- Save Current State. return false if went wrong. 
+function saveState()
+    return saveJSON(state_path..state_file_name, state) 
+end 
  
 ----------- UI Functions -----------
 -- Get Input from UI
-function RequestPlayerInput( input_text, helper_text )
+function requestPlayerInput( input_text, helper_text )
     
     if not input_text then return false end
  
@@ -129,11 +142,11 @@ function RequestPlayerInput( input_text, helper_text )
     io.write(input_text)
     
     if helper_text then 
-        cPosX, cPosY = term.getCursorPos()
+        c_pos_x, c_pos_y = term.getCursorPos()
         print("")
         print("")
         print(helper_text)
-        term.setCursorPos(cPosX, cPosY)
+        term.setCursorPos(c_pos_x, c_pos_y)
     end
     
     -- Get Input from UI
@@ -159,25 +172,25 @@ end
 -- Turtle turn left
 function turnLeft()
     turtle.turnLeft()
-    data.dirX, data.dirZ = -data.dirZ, data.dirX
-    save()
-    --print(data.dirX, data.dirZ)
+    state.dir_x, state.dir_z = -state.dir_z, state.dir_x
+    saveState()
+    --print(state.dir_x, state.dir_z)
 end
  
 -- Turtle turn rigth
 function turnRight()
     turtle.turnRight()
-    data.dirX, data.dirZ = data.dirZ, -data.dirX
-    save()
-    --print(data.dirX, data.dirZ)
+    state.dir_x, state.dir_z = state.dir_z, -state.dir_x
+    saveState()
+    --print(state.dir_x, state.dir_z)
 end 
  
 -- Turtle move up. Returns false if failed.
 function up()
     if turtle.up() then
-        data.posY = data.posY + data.dirY 
-        save()
-        --print(data.posY)
+        state.pos_y = state.pos_y + 1
+        saveState()
+        --print(state.pos_y)
         return true
     end
     return false
@@ -186,9 +199,9 @@ end
 -- Turtle move down. Returns false if failed.  
 function down()
     if turtle.down() then
-        data.posY = data.posY + data.dirY 
-        save()
-        --print(data.posY)
+        state.pos_y = state.pos_y - 1
+        saveState()
+        --print(state.pos_y)
         return true
     end
     return false
@@ -197,10 +210,10 @@ end
 -- Turtle move forward. Returns false if failed.  
 function forward()
     if turtle.forward() then
-        data.posX = data.posX + data.dirX
-        data.posZ = data.posZ + data.dirZ
-        save()
-        --print(data.posX, data.posZ)
+        state.pos_x = state.pos_x + state.dir_x
+        state.pos_z = state.pos_z + state.dir_z
+        saveState()
+        --print(state.pos_x, state.pos_z)
         return true
     end
     return false
@@ -215,28 +228,28 @@ function move()
         return false 
     end
     
-    data.lastX = data.posX 
-    data.lastZ = data.posZ 
+    state.last_x = state.pos_x 
+    state.last_z = state.pos_z 
+    saveState()
  
     -- turtle.digUp()
     -- turtle.digDown()
  
     -- checkItems()
-    save()
     return true
 end 
  
 -- Return false if the row couldn't complete 
 function row()
-    while false do
-        if not move() then return false end
-    end
+    while state.dir_z > 0 and (state.size_z - state.pos_z) > 0 or state.dir_z > 0 do 
+        if not move() then return false end 
+    end 
     return true 
 end 
  
 -- Return false if the layer couldn't complete 
 function layer()
-    while (state.posX + state.dirX) > state.sizeX do
+    while (state.pos_x + state.dir_x) < state.size_x do
         if not row() then return false end
     end
     return true 
@@ -244,10 +257,11 @@ end
  
 -- Return false if the excavate couldn't complete 
 function excavate()
-    while (state.posY + state.dirY) > state.sizeY  do
+    while (state.pos_y + state.dir_y) > state.size_y  do
         if layer() then 
             if down() then 
-                data.lastY = data.posY 
+                state.last_y = state.pos_y 
+                saveState()
             else 
                 return false 
             end 
@@ -264,57 +278,57 @@ function start()
     -- Get Excavate Size from User input
     local validArgs = false
     while not validArgs do
-        local sizeX
-        local sizeZ
-        local sizeY
+        local size_x
+        local size_z
+        local size_y
  
         local tArgs = {}
  
-        -- Request X Size
-        tArgs = RequestPlayerInput( "Excavate X Size: ", "The Number of Blocks to the right of the Turtle, including the Block where the Turtle stands." )
+        -- Request X <size> (<offset>)
+        tArgs = requestPlayerInput( "Excavate X Size: ", "The Number of Blocks to the right of the Turtle, including the Block where the Turtle stands." )
  
         if #tArgs == 1 then 
-            sizeX = tonumber( tArgs[1] )
+            size_x = tonumber( tArgs[1] )
         else
-            sizeX = 0
+            size_x = 0
         end
         
-        -- Request Z Size
-        tArgs = RequestPlayerInput( "Excavate Z Size: ", "(optional) The Number of Blocks in front of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <X Size> would be used." )
+        -- Request Z (<size>) (<offset>)
+        tArgs = requestPlayerInput( "Excavate Z Size: ", "(optional) The Number of Blocks in front of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <X Size> would be used." )
  
         if #tArgs == 1 then 
-            sizeZ = tonumber( tArgs[1] )
+            size_z = tonumber( tArgs[1] )
         else
-            sizeZ = sizeX
+            size_z = size_x
         end
  
-        -- Request Y Size
-        tArgs = RequestPlayerInput( "Excavate Y Size: ", "(optional) The Number of Blocks the Turtle should go down, including the Block where the Turtle stands. If 0 or not passed in depth is until we hit something we can't dig." )
+        -- Request Y (<size>) (<offset>)
+        tArgs = requestPlayerInput( "Excavate Y Size: ", "(optional) The Number of Blocks the Turtle should go down, including the Block where the Turtle stands. If 0 or not passed in depth is until we hit something we can't dig." )
  
         if #tArgs == 1 then 
-            sizeY = tonumber( tArgs[1] )
-            sizeY = sizeY * -1
+            size_y = tonumber( tArgs[1] )
+            size_y = size_y * -1
         else
-            sizeY = 0
+            size_y = 0
         end
  
         -- Check inputs Valid and safe in state
-        if sizeX >= 1 and sizeZ >= 1 and sizeY <= 0 then
-            state.sizeX = sizeX
-            state.sizeZ = sizeZ
-            state.sizeY = sizeY
+        if size_x >= 1 and size_z >= 1 and size_y <= 0 then
+            state.size_x = size_x
+            state.size_z = size_z
+            state.size_y = size_y
             state.finished = false
- 
-            if SaveFile( state_path..state_file_name, state ) then 
-                validArgs = true
-            end
+            
+            validArgs = saveState()
         end    
     end
     
     -- Excavate
     if not state.finished then 
+        -- TODO: Version compatibility 
 		print("Excavate...")
         state.finished = excavate()
+        saveState()
     end
 	print("Finish...")
 end
@@ -327,6 +341,7 @@ function restart()
     -- Excavate
     if not state.finished then 
         state.finished = excavate()
+        saveState()
     end 
  
 end
@@ -336,6 +351,7 @@ function continue()
     -- Excavate
     if not state.finished then 
         state.finished = excavate()
+        saveState()
     end 
 end
  
@@ -386,10 +402,10 @@ if #tArgs < 1 then
 end 
                 
 -- Initialize Configuration 
-InitConfig()
+initConfig()
  
 -- Load state
-LoadState()
+initState()
                 
 -- Switch to selected program mode 
 local pMode = tArgs[1]
