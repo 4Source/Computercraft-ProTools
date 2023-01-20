@@ -17,8 +17,21 @@
 
 ----------- Constants -----------
 HELP_PAGES = {'use', 'start', 'restart', 'continue', 'setup'}
+
+----------- Utilities -----------
+-- Split Sting 
+function split(inputstr, sep)
+    if sep == nil then
+        sep = "%s"
+    end
+    local t={}
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        table.insert(t, str)
+    end
+    return t
+end
  
------------ File Functions ----------- 
+----------- File Utilities ----------- 
 -- Create/Open file and safe data
 function saveJSON( filePath, dataIn )
     local file = io.open(filePath,"w")
@@ -153,19 +166,19 @@ function requestPlayerInput( input_text, helper_text )
     input = io.read()
     
     -- Prosses Input 
-    args = {}
-    i=1
-    for s in string.gmatch(input, "%S+") do
-        args[i] = s
-        i=i+1
-    end
+    --args = {}
+    --i=1
+    --for s in string.gmatch(input, "%S+") do
+    --    args[i] = s
+    --    i=i+1
+    --end
  
     -- Clear UI
     term.clear()
     term.setCursorPos(1, 1)
     
     -- Return args
-    return args
+    return split(input)
 end
         
 ----------- Move Functions -----------
