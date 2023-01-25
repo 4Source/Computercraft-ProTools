@@ -4,7 +4,7 @@
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/UmUvXfqs
--- Installation: It is recommended to use the installer for full feature support.
+-- Installation: Run installer below for full installation. 
 -- Installer: pastebin run wHmS4pNS
 -- Usage: (program name) <program mode>
 -- Features: 
@@ -23,6 +23,7 @@ P_VERSION = "0.1.0"
 ----------- Utilities -----------
 -- Split Sting 
 function split(inputstr, sep)
+    if not inputstr then return end
     if sep == nil then
         sep = "%s"
     end
@@ -79,39 +80,39 @@ local config = {}
 -- Version of config file
 config.VERSION = "0.1.0"
 
--- config.MOVE_FAILURE_ATTEMPTS = 5         -- Attempts try to move without success 
+-- config.MOVE_FAILURE_ATTEMPTS = 5         -- Attempts try to move without success [Version > ]
  
--- config.bAUTO_REFUEL = true              -- Auto Refuel from Turtel Inventory
--- config.REFUEL_LEVEL = 1000              -- Below this level the Turtle needs to refuel or goes back to start 
--- config.bFUEL_SAVER = false              -- Reduses the amount of Fuel needed. Incompatible with some features.
+-- config.bAUTO_REFUEL = true              -- Auto Refuel from Turtel Inventory [Version > ]
+-- config.REFUEL_LEVEL = 1000              -- Below this level the Turtle needs to refuel or goes back to start [Version > ]
+-- config.bFUEL_SAVER = false              -- Reduses the amount of Fuel needed. Incompatible with some features. [Version > ]
  
--- config.bUSE_ITEM_CHESTS = true          -- Put Item's in Chest(Inventory) 
--- config.bUSE_FUEL_CHESTS = false         -- Use an extra chest with only fuel 
--- config.bFILL_FUEL_CHESTS = false        -- Put the Item's which are fuel in fuel chest 
--- config.CHESTS = {}                      -- Array of chest's 
--- config.CHESTS[1].TYPE = "item"          -- Type of chest { "item", "fuel", "filtered" }
--- config.CHESTS[1].PRIORITY = 1           -- Priority trying to use this chest { higher before lower | closest distance to start } 
--- config.CHESTS[1].CHEST_OFFSET_X = 0     -- Chest Positon offset to Turtle start
--- config.CHESTS[1].CHEST_OFFSET_Z = -1    -- Chest Positon offset to Turtle start
--- config.CHESTS[1].CHEST_OFFSET_Y = 0     -- Chest Positon offset to Turtle start
+-- config.bUSE_ITEM_CHESTS = true          -- Put Item's in Inventory [Version > ]
+-- config.bUSE_FUEL_CHESTS = false         -- Use an extra chest with only fuel [Version > ]
+-- config.bFILL_FUEL_CHESTS = false        -- Put the Item's which are fuel in fuel chest [Version > ]
+-- config.CHESTS = {}                      -- Array of chest's [Version > ]
+-- config.CHESTS[1].TYPE = "item"          -- Type of chest { "item", "fuel", "filtered" } [Version > ]
+-- config.CHESTS[1].PRIORITY = 1           -- Priority trying to use this chest { higher before lower | closest distance to start } [Version > ]
+-- config.CHESTS[1].CHEST_OFFSET_X = 0     -- Chest Positon offset to Turtle start [Version > ]
+-- config.CHESTS[1].CHEST_OFFSET_Z = -1    -- Chest Positon offset to Turtle start [Version > ]
+-- config.CHESTS[1].CHEST_OFFSET_Y = 0     -- Chest Positon offset to Turtle start [Version > ]
  
-config.bAUTO_RESTART = true             -- Auto restart when Turtle turned on [Version > 0.1.0]
+-- config.bAUTO_RESTART = false             -- Auto restart when Turtle turned on [Version > ]
  
--- config.bSOLID_WALLS = true              -- In outer ring fill the gabs in wall. (INCOMPATIBLE bFUEL_SAVER)
--- config.bREMOVE_FLUID = true             -- Remove Fluid's in front of the Turtle. (INCOMPATIBLE bFUEL_SAVER)
+-- config.bSOLID_WALLS = true              -- In outer ring fill the gabs in wall. (INCOMPATIBLE bFUEL_SAVER) [Version > ]
+-- config.bREMOVE_FLUID = true             -- Remove Fluid's in front of the Turtle. (INCOMPATIBLE bFUEL_SAVER) [Version > ]
  
  
 local config_path, config_file_name = "/ProTools/ExcavatePro", "/config"
--- Make sure we have the directory and the file or get the default 
+-- Make sure we have the directory 
 if not fs.exists(config_path..config_file_name) then 
     if not fs.exists(config_path) then 
         fs.makeDir(config_path)
     end 
-    shell.run("pastebin", "get", W6KuhCeR, config_file_name)
 end
  
 -- Initialize Configuration 
 function initConfig()
+    print("Initialize Config...")
     -- Load Configs
     exists, data = loadJSON( config_path..config_file_name )
     if exists then 
@@ -119,6 +120,10 @@ function initConfig()
             error("Incompatible config file. Version is incompatible! Try to update your program or run the setup for this program.")
         end 
         config = data
+    else
+        -- Download default config
+        shell.run("pastebin", "get", "W6KuhCeR", config_path..config_file_name)
+        --saveJSON(config_path..config_file_name, config) 
     end 
  
     -- Create Startup file 
@@ -145,10 +150,10 @@ state.PROGRAM = shell.getRunningProgram()
 
 -- Defaults Position
 -- X: Positive = Right | Z: Positive = Forward | Y: Positive = Up
-state.pos_x, state.pos_z, state.pos_y = 0, 0, 0        -- Positiok where the Turtle is relative to start 
-state.last_x, state.last_z, state.last_y = 0, 0, 0    -- Position where the Turtle last digged relative to start  
-state.dir_x, state.dir_z, state.dir_y = 0, 1, -1       -- Direction the Turtel move 
-state.size_x, state.size_z, state.size_y = 0, 0, 0     -- Target size to dig
+state.pos_x, state.pos_z, state.pos_y = 0, 0, 0         -- Positiok where the Turtle is relative to start 
+state.last_x, state.last_z, state.last_y = 0, 0, 0      -- Position where the Turtle last digged relative to start  
+state.dir_x, state.dir_z = 0, 1                         -- Direction the Turtel move 
+state.size_x, state.size_z, state.size_y = 0, 0, 0      -- Target size to dig
 state.finished = true 
  
 local state_path, state_file_name = "/ProTools", "/state"
@@ -159,6 +164,7 @@ end
  
 -- Load State
 function initState()
+    print("Initialize State...")
     exists, data = loadJSON( state_path..state_file_name )
     if exists then 
         if data.PROGRAM ~= shell.getRunningProgram() then 
@@ -169,6 +175,8 @@ function initState()
         end  
         state = data
     end 
+
+    saveState()
 end
 -- Save Current State. return false if went wrong. 
 function saveState()
@@ -196,14 +204,6 @@ function requestPlayerInput( input_text, helper_text )
     
     -- Get Input from UI
     input = io.read()
-    
-    -- Prosses Input 
-    --args = {}
-    --i=1
-    --for s in string.gmatch(input, "%S+") do
-    --    args[i] = s
-    --    i=i+1
-    --end
  
     -- Clear UI
     term.clear()
@@ -216,62 +216,88 @@ end
 ----------- Move Functions -----------
 -- Turtle turn left
 function turnLeft()
-    turtle.turnLeft()
+    local done_turtle_turn_left = turtle.turnLeft()
+    -- if not done_turtle_turn_left then return false, "Turtle failed to turn left." end
+    if not done_turtle_turn_left then 
+        print("Turtle failed to turn left.")
+        return false, "Turtle failed to turn left."
+    end
+
     state.dir_x, state.dir_z = -state.dir_z, state.dir_x
     saveState()
-    --print(state.dir_x, state.dir_z)
+    print("turnLeft")
+    return true
 end
  
 -- Turtle turn rigth
 function turnRight()
-    turtle.turnRight()
+    local done_turtle_turn_right = turtle.turnRight()
+    -- if not done_turtle_turn_right then return false, "Turtle failed to turn right." end
+    if not done_turtle_turn_right then 
+        print("Turtle failed to turn right.")
+        return false, "Turtle failed to turn right."
+    end
+
     state.dir_x, state.dir_z = state.dir_z, -state.dir_x
     saveState()
-    --print(state.dir_x, state.dir_z)
+    print("turnRight")
+    return true
 end 
  
 -- Turtle move up. Returns false if failed.
 function up()
-    if turtle.up() then
-        state.pos_y = state.pos_y + 1
-        saveState()
-        --print(state.pos_y)
-        return true
+    local done_turtle_up = turtle.up()
+    -- if not done_turtle_up then return false, "Turtle failed to move up." end
+    if not done_turtle_up then
+        print("Turtle failed to move up.")
+        return false, "Turtle failed to move up."
     end
-    return false
+
+    state.pos_y = state.pos_y + 1
+    saveState()
+    print("up")
+    return true
 end
  
 -- Turtle move down. Returns false if failed.  
 function down()
-    if turtle.down() then
-        state.pos_y = state.pos_y - 1
-        saveState()
-        --print(state.pos_y)
-        return true
+    local done_turtle_down = turtle.down()
+    -- if not done_turtle_down then return false, "Turtle failed to move down." end
+    if not done_turtle_down then 
+        print("Turtle failed to move down.")
+        return false, "Turtle failed to move down."
     end
-    return false
+
+    state.pos_y = state.pos_y - 1
+    saveState()
+    print("down")
+    return true
 end
  
 -- Turtle move forward. Returns false if failed.  
 function forward()
-    if turtle.forward() then
-        state.pos_x = state.pos_x + state.dir_x
-        state.pos_z = state.pos_z + state.dir_z
-        saveState()
-        --print(state.pos_x, state.pos_z)
-        return true
+    local done_turtle_forward = turtle.forward()
+    -- if not done_turtle_forward then return false, "Turtle failed to move forward." end
+    if not done_turtle_forward then 
+        print("Turtle failed to move forward.")
+        return false, "Turtle failed to move forward."
     end
-    return false
+
+    state.pos_x = state.pos_x + state.dir_x
+    state.pos_z = state.pos_z + state.dir_z
+    saveState()
+    print("forward")
+    return true
 end 
  
------------ QUARRY FUNCTIONS ------------
+----------- Digging FUNCTIONS ------------
 -- Return false if there is no possibly way to move 
-function move()
+function digForward()
+    print("digForward")
     turtle.dig()
- 
-    if not forward() then      
-        return false 
-    end
+    
+    local done_forward, msg = forward()
+    if not done_forward then return false, msg end
     
     state.last_x = state.pos_x 
     state.last_z = state.pos_z 
@@ -281,42 +307,178 @@ function move()
     -- turtle.digDown()
  
     -- checkItems()
+    print("end digForward")
     return true
 end 
- 
+
+-- Return false if there is no possibly way to move 
+function digDown()
+    print("digDown")
+    turtle.digDown()
+    
+    local done_down, msg = down()
+    if not done_down then return false, msg end
+    
+    state.last_y = state.pos_y 
+    saveState()
+
+    print("end digDown")
+    return true
+end 
+
+----------- QUARRY FUNCTIONS ------------
 -- Return false if the row couldn't complete 
 function row()
-    while state.dir_z > 0 and (state.size_z - state.pos_z) > 0 or state.dir_z > 0 do 
-        if not move() then return false end 
+    print("row")
+    if state.dir_z == 0 then 
+        print("No Z direction value applied.")
+        return false, "No Z direction value applied."
+    end
+    if state.size_z <= state.pos_z or state.pos_z < 0  then 
+        print("Turtle is out of Z movement range.")
+        return false, "Turtle is out of Z movement range."
+    end
+
+
+    -- while state.dir_z > 0 and (state.size_z - (state.pos_z + state.dir_z)) > 0 or state.dir_z < 0 and state.pos_z > 0 do 
+    while state.dir_z > 0 and (state.pos_z + 1) < state.size_z or state.dir_z < 0 and state.pos_z > 0  do
+        local done_dig_forward, msg = digForward()
+        if not done_dig_forward then return false, msg end 
+        sleep(1)     
     end 
+    print("end row")
     return true 
 end 
  
 -- Return false if the layer couldn't complete 
 function layer()
-    while (state.pos_x + state.dir_x) < state.size_x do
-        if not row() then return false end
+    print("layer")
+    while state.pos_x  < state.size_x do
+        local done_row, msg = row()
+        if not done_row then return false, msg end
+        
+        local current_dir_z = state.dir_z
+        -- if not last or first row
+        if current_dir_z > 0 then 
+            local done_turn_right, msg = turnRight()
+            if not done_turn_right then return false, msg end
+        else
+            local done_turn_left, msg = turnLeft()
+            if not done_turn_left then return false, msg end
+        end
+
+        if (state.pos_x + 1) < state.size_x then 
+            local done_dig_forward, msg = digForward()
+            if not done_dig_forward then return false, msg end 
+        end
+
+        if current_dir_z > 0 then 
+            local done_turn_right, msg = turnRight()
+            if not done_turn_right then return false, msg end
+        else 
+            local done_turn_left, msg = turnLeft()
+            if not done_turn_left then return false, msg end
+        end
+
+        if (state.pos_x + 1)  >= state.size_x and (state.pos_z + 1) >= state.size_z then return true end
+
+        sleep(1)     
     end
+    print("end layer")
     return true 
 end 
- 
+
 -- Return false if the excavate couldn't complete 
 function excavate()
-    while (state.pos_y + state.dir_y) > state.size_y  do
-        if layer() then 
-            if down() then 
-                state.last_y = state.pos_y 
-                saveState()
-            else 
-                return false 
-            end 
-        else 
-            return false 
-        end
+    print("excavate")
+    while state.pos_y > state.size_y  do
+        local done_layer, msg = layer()
+        if not done_layer then return false, msg end
+        
+        if (state.pos_z + 1) >= state.size_z and (state.pos_x + 1)  >= state.size_x and (state.pos_y - 1) <= state.size_y then return true end
+
+        local done_dig_down, msg = digDown()
+        if not done_dig_down then return false, msg end
+
+        sleep(1)     
     end
+    print("end excavate")
     return true 
 end
- 
+
+----------- TEST -----------
+
+function goTo( x, y, z, xd, zd )
+	while state.pos_y > y do
+		if turtle.up() then
+			state.pos_y = state.pos_y - 1
+		else
+			sleep( 0.5 )
+		end
+	end
+
+	if state.pos_x > x then
+		while state.dir_x ~= -1 do
+			turnLeft()
+		end
+		while state.pos_x > x do
+			if turtle.forward() then
+				state.pos_x = state.pos_x - 1
+			else
+				sleep( 0.5 )
+			end
+		end
+	elseif state.pos_x < x then
+		while state.dir_x ~= 1 do
+			turnLeft()
+		end
+		while state.pos_x < x do
+			if turtle.forward() then
+				state.pos_x = state.pos_x + 1
+			else
+				sleep( 0.5 )
+			end
+		end
+	end
+	
+	if state.pos_z > z then
+		while state.dir_z ~= -1 do
+			turnLeft()
+		end
+		while state.pos_z > z do
+			if turtle.forward() then
+				state.pos_z = state.pos_z - 1
+			else
+				sleep( 0.5 )
+			end
+		end
+	elseif state.pos_z < z then
+		while state.dir_z ~= 1 do
+			turnLeft()
+		end
+		while state.pos_z < z do
+			if turtle.forward() then
+				state.pos_z = state.pos_z + 1
+			else
+				sleep( 0.5 )
+			end
+		end	
+	end
+	
+	while state.pos_y < y do
+		if turtle.down() then
+			state.pos_y = state.pos_y + 1
+		else
+			sleep( 0.5 )
+		end
+	end
+	
+	while state.dir_z ~= zd or state.dir_x ~= xd do
+		turnLeft()
+	end
+end
+
+
 ----------- Modes Run -----------
 -- Start Function
 function start()
@@ -328,23 +490,23 @@ function start()
         local size_y
  
         local tArgs = {}
- 
-        -- Request X <size> (<offset>)
-        tArgs = requestPlayerInput( "Excavate X Size: ", "The Number of Blocks to the right of the Turtle, including the Block where the Turtle stands." )
- 
-        if #tArgs == 1 then 
-            size_x = tonumber( tArgs[1] )
-        else
-            size_x = 0
-        end
-        
-        -- Request Z (<size>) (<offset>)
-        tArgs = requestPlayerInput( "Excavate Z Size: ", "(optional) The Number of Blocks in front of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <X Size> would be used." )
+
+        -- Request Z <size> (<offset>)
+        tArgs = requestPlayerInput( "Excavate Z Size: ", "(optional) The Number of Blocks in front of the Turtle, including the Block where the Turtle stands." )
  
         if #tArgs == 1 then 
             size_z = tonumber( tArgs[1] )
         else
             size_z = size_x
+        end
+ 
+        -- Request X (<size>) (<offset>)
+        tArgs = requestPlayerInput( "Excavate X Size: ", "The Number of Blocks to the right of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <X Size> would be used." )
+ 
+        if #tArgs == 1 then 
+            size_x = tonumber( tArgs[1] )
+        else
+            size_x = 0
         end
  
         -- Request Y (<size>) (<offset>)
@@ -372,7 +534,12 @@ function start()
     if not state.finished then 
         -- TODO: Version compatibility 
 		print("Excavate...")
-        state.finished = excavate()
+        done_excavate, msg = excavate()
+        if not done_excavate then 
+            print(msg)
+        end
+        
+        state.finished = done_excavate
         saveState()
     end
 	print("Finish...")
@@ -436,6 +603,57 @@ function help( topic )
         print( s )
         return
     end
+end
+
+-- Development Function
+function dev()
+    local size_x
+    local size_z
+    local size_y
+    local dir_x
+    local dir_z
+    local tArgs = {}
+
+    -- Request Z 
+    tArgs = requestPlayerInput( "Excavate Z Size: " )
+
+    if #tArgs == 1 then 
+        size_z = tonumber( tArgs[1] )
+    end
+
+    -- Request X 
+    tArgs = requestPlayerInput( "Excavate X Size: " )
+
+    if #tArgs == 1 then 
+        size_x = tonumber( tArgs[1] )
+    end
+
+    -- Request Y 
+    tArgs = requestPlayerInput( "Excavate Y Size: " )
+
+    if #tArgs == 1 then 
+        size_y = tonumber( tArgs[1] )
+    end
+
+    -- Request Z dir
+    tArgs = requestPlayerInput( "Z Direction: " )
+
+    if #tArgs == 1 then 
+        dir_z = tonumber( tArgs[1] )
+    end
+
+    -- Request Y dir
+    tArgs = requestPlayerInput( "X Direction: " )
+
+    if #tArgs == 1 then 
+        dir_x = tonumber( tArgs[1] )
+    end
+
+    print("z/x/y "..size_z.." "..size_x.." "..size_y)
+    print("dirZ/dirX "..dir_z.." "..dir_x)
+
+    goTo( size_x, size_y, size_z, dir_x, dir_z )
+
 end
         
 ----------- RUN -----------
@@ -507,6 +725,12 @@ elseif pMode == "help" then
     end 
  
     help(tArgs[2])
+
+-- Development mode
+elseif pMode == "dev" then  
+    print( "Development..." )
+    dev()
+   
 -- Invalid     
 else
     print( "Usage: "..shell.getRunningProgram().." <program mode>" )
