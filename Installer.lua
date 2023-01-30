@@ -195,6 +195,13 @@ if downloadFile("ExcavatePro", "UmUvXfqs", is_update) then
 end 
 install_total= install_total+ 1
 
+-- Excavate Test 
+if downloadFile("ExcavateTest", "VKXH5kjq", is_update) then 
+    install_success = install_success + 1
+end 
+install_total= install_total+ 1
+   
+
 ----- Finished ----- 
 term.clear()
 term.setCursorPos(1, 1)
