@@ -1,0 +1,10 @@
+{
+    "VERSION": "0.1.0",
+    "CATEGORYS": [
+        {
+            "CATEGORY": "Logger",
+            "LOG_LEVEL": "WARN",
+            "PRINT_LEVEL": "INFO"
+        }
+    ]
+}

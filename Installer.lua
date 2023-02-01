@@ -9,10 +9,12 @@
  
 ----------- Formatting -----------
 -- Constants: Uppercase and Underscores (CONSTANTS_EXAMPEL)
------- boolean: starts with 'b'  (bIS_CONSTANTS_EXAMPEL) formulated as a statement
+--     boolean: starts with 'b' formulated as a statement (bIS_CONSTANTS_EXAMPEL) 
 -- Variables: Lowercase and Underscores (variable_example)
+--     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
  
+ P_VERSION = "0.1.0"
 
 ----------- Helper functions -----------
 function ensure(question)
@@ -87,13 +89,24 @@ local remove_success = 0
 local remove_total = 0
 local is_update 
 local clean_state 
+local clean_log
 local default_config_excavate_pro 
+
+term.clear()
+term.setCursorPos(1, 1)
+print("ProTools Installer v"..P_VERSION)
+print("")
+print("running...")
 
 ----- User inputs -----
 -- Check for input arguments 
 local tArgs = { ... }
-if #tArgs == 1 and tArgs[1] == "update" then 
-    is_update = tArgs[1] == "update"
+if #tArgs <= 1 and tArgs[1] == "update" then 
+    if #tArgs == 1 then 
+        is_update = tArgs[1] == "update"
+    else
+        -- for loop thrue args to see wich program should be updated
+    end
 elseif #tArgs == 0 then
     is_update = false 
     --default_config_excavate_pro = true
@@ -109,6 +122,19 @@ while clean_state == nil do
     else
         clean_state = ensure("Should the state be deleted?")
     end
+    term.clear()
+    term.setCursorPos(1, 1)
+end
+
+-- Ask if log should be reset
+while clean_log == nil do 
+    if not fs.exists("/ProTools/log") then 
+        clean_log = false 
+    else
+        clean_log = ensure("Should the log be deleted?")
+    end
+    term.clear()
+    term.setCursorPos(1, 1)
 end
 
 -- Ask if config should be reset
@@ -118,6 +144,8 @@ while default_config_excavate_pro == nil do
     else
         default_config_excavate_pro = ensure("Should the configuration for ExcavatePro be reset to default?")
     end
+    term.clear()
+    term.setCursorPos(1, 1)
 end
 
 ----- State -----
@@ -125,6 +153,15 @@ end
 if clean_state then 
     -- Delete State File
     if removeFile("/ProTools/state", clean_state) then 
+        remove_success = remove_success + 1
+    end
+    remove_total = remove_total + 1
+end 
+
+-- Log Clean Up 
+if clean_log then 
+    -- Delete State File
+    if removeFile("/ProTools/log", clean_log) then 
         remove_success = remove_success + 1
     end
     remove_total = remove_total + 1
@@ -152,38 +189,51 @@ if downloadFile("/ProTools/Utilities/proUtilities", "nnMQE7U9", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
+
 -- inventoryManager Install/Update
 if downloadFile("/ProTools/Utilities/inventoryManager", "9RTF5CDF", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
+
 -- fuelManager Install/Update
 if downloadFile("/ProTools/Utilities/fuelManager", "dNEyanjZ", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
+
 -- fileManager Install/Update
 if downloadFile("/ProTools/Utilities/fileManager", "8nBVnDHu", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
+
 -- uiUtil Install/Update
 if downloadFile("/ProTools/Utilities/uiUtil", "iLvyjQYn", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
+
 -- mineUtilities Install/Update
 if downloadFile("/ProTools/Utilities/mineUtilities", "gba5abkG", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
+
 -- stateManager Install/Update
 if downloadFile("/ProTools/Utilities/stateManager", "fkVjJJME", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
+
 -- configManager Install/Update
 if downloadFile("/ProTools/Utilities/configManager", "SkTYkVhV", is_update) then
+    install_success = install_success + 1
+end 
+install_total = install_total+ 1
+
+-- logger Install/Update
+if downloadFile("/ProTools/Utilities/logger", "c7evHdJg", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
@@ -206,6 +256,7 @@ install_total= install_total+ 1
 term.clear()
 term.setCursorPos(1, 1)
 
+print("ProTools Installer v"..P_VERSION)
 if remove_success ~= remove_total then 
     print("Something went wrong by removing files.")
 elseif install_success ~= install_total then
