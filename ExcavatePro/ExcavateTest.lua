@@ -8,18 +8,19 @@ local this = "ExcavateTest"
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
-	log.warn("Usage: excavate <diameter>", this)
+	log.fatal("Usage: excavate <diameter>", this)
 	return
 end
 
--- Mine in a quarry pattern until we hit something we can't dig
-state_manager.setSizeX(tonumber( tArgs[1] ))
-if state_manager.getSizeX() < 1 then
-	log.warn("Excavate diameter must be positive", this)
+-- Check for valid size input 
+if tonumber(tArgs[1]) < 1 then
+	log.fatal("Excavate diameter must be positive", this)
 	return
 end
 
 state_manager.initState(P_VERSION)
+
+state_manager.setSizeX(tonumber( tArgs[1] ))
 	
 local unloaded = 0
 local collected = 0
@@ -326,67 +327,45 @@ if not refuel() then
 	return
 end
 
-log.info("Excavating...", this)
+local function excavate()
+    log.info("Excavating...", this) 
+    local done = false
+    while not done do
+        log.verbose(textutilities.serialize(done), this)
+	    for x=0, (size_x - 1) do
+		    for z=0, (size_z - 1) do
+			    if not tryForwards() then
+				    return 
+			    end
+		    end
+		    if x < (size_x - 1) then
+			    if math.fmod(x, 2) == 0 then
+				    turnRight()
+				    if not tryForwards() then
+				    	return 
+				    end
+				    turnRight()
+			    else
+				    turnLeft()
+				    if not tryForwards() then
+					    return 
+				    end
+				    turnLeft()
+			    end
+		    end
+	    end
 
-local reseal = false
-turtle.select(1)
-if turtle.digDown() then
-	reseal = true
-end
+        turnLeft()
+        turnLeft() 
+	
+	    if not tryDown() then
+		    return 
+	    end
+    end 
+end 
 
-local alternate = 0
-local done = false
-while not done do
-	for n=1, state_manager.getSizeX() do
-		for m=1, state_manager.getSizeX() - 1 do
-			if not tryForwards() then
-				done = true
-				break
-			end
-		end
-		if done then
-			break
-		end
-		if n < state_manager.getSizeX() then
-			if math.fmod(n + alternate,2) == 0 then
-				turnLeft()
-				if not tryForwards() then
-					done = true
-					break
-				end
-				turnLeft()
-			else
-				turnRight()
-				if not tryForwards() then
-					done = true
-					break
-				end
-				turnRight()
-			end
-		end
-	end
-	if done then
-		break
-	end
-	
-	if state_manager.getSizeX() > 1 then
-		if math.fmod(state_manager.getSizeX(), 2) == 0 then
-			turnRight()
-		else
-			if alternate == 0 then
-				turnLeft()
-			else
-				turnRight()
-			end
-			alternate = 1 - alternate
-		end
-	end
-	
-	if not tryDown() then
-		done = true
-		break
-	end
-end
+-- Excavateing 
+excavate()
 
 log.info("Returning to surface...", this)
 
@@ -394,10 +373,5 @@ log.info("Returning to surface...", this)
 goTo( 0,0,0,0,-1 )
 unload( false )
 goTo( 0,0,0,0,1 )
-
--- Seal the hole
-if reseal then
-	turtle.placeDown()
-end
 
 log.info("Mined "..(collected + unloaded).." items total.", this) 
