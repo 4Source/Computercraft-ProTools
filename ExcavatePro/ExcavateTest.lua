@@ -4,17 +4,17 @@ local log = require("ProTools.Utilities.logger")
 -- Program Version (MAJOR.MINOR.PATCH-PRERELEASE)
 P_VERSION = "0.1.0"
 -- Name of self
-local this = "ExcavateTest"
+local THIS = "ExcavateTest"
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
-	log.fatal("Usage: excavate <diameter>", this)
+	log.fatal("Usage: excavate <diameter>", THIS)
 	return
 end
 
 -- Check for valid size input 
 if tonumber(tArgs[1]) < 1 then
-	log.fatal("Excavate diameter must be positive", this)
+	log.fatal("Excavate diameter must be positive", THIS)
 	return
 end
 
@@ -29,7 +29,7 @@ local goTo -- Filled in further down (function)
 local refuel -- Filled in further down
  
 local function unload( _bKeepOneFuelStack )
-	log.info("Unloading items...", this)
+	log.info("Unloading items...", THIS)
 	for n=1,16 do
 		local nCount = turtle.getItemCount(n)
 		if nCount > 0 then
@@ -53,13 +53,13 @@ local function returnSupplies()
     state_manager.setProgress(state_manager.getCurrent())
 
 
-	log.info("Returning to surface...", this)
+	log.info("Returning to surface...", THIS)
 	goTo( 0,0,0,0,-1 )
 	
 	local fuelNeeded = 2*(x+y+z) + 1
 	if not refuel( fuelNeeded ) then
 		unload( true )
-		log.info("Waiting for fuel", this)
+		log.info("Waiting for fuel", THIS)
 		while not refuel( fuelNeeded ) do
 			os.pullEvent( "turtle_inventory" )
 		end
@@ -67,7 +67,7 @@ local function returnSupplies()
 		unload( true )	
 	end
 	
-	log.info("Resuming mining...", this)
+	log.info("Resuming mining...", THIS)
 	goTo( state_manager.getProgress().pos_x, state_manager.getProgress().pos_y, state_manager.getProgress().pos_z, state_manager.getProgress().dir_x, state_manager.getProgress().dir_z )
 end
 
@@ -85,12 +85,12 @@ local function collect()
 	if nTotalItems > collected then
 		collected = nTotalItems
 		if math.fmod(collected + unloaded, 50) == 0 then
-			log.info("Mined "..(collected + unloaded).." items.", this)
+			log.info("Mined "..(collected + unloaded).." items.", THIS)
 		end
 	end
 	
 	if bFull then
-		log.warn("No empty slots left.", this)
+		log.warn("No empty slots left.", THIS)
 		return false
 	end
 	return true
@@ -128,7 +128,7 @@ end
 
 local function tryForwards()
 	if not refuel() then
-		log.warn("Not enough Fuel", this)
+		log.warn("Not enough Fuel", THIS)
 		returnSupplies()
 	end
 	
@@ -162,7 +162,7 @@ end
 
 local function tryDown()
 	if not refuel() then
-		log.warn("Not enough Fuel", this)
+		log.warn("Not enough Fuel", THIS)
 		returnSupplies()
 	end
 	
@@ -191,7 +191,7 @@ local function tryDown()
 	-- state_manager.getCurrent().pos_y = state_manager.getCurrent().pos_y + 1
 
 	if math.fmod( state_manager.getCurrent().pos_y, 10 ) == 0 then
-		log.info("Descended "..state_manager.getCurrent().pos_y.." metres.", this)
+		log.info("Descended "..state_manager.getCurrent().pos_y.." metres.", THIS)
 	end
 
 	return true
@@ -323,15 +323,15 @@ function goTo( x, y, z, xd, zd )
 end
 
 if not refuel() then
-	log.warn("Out of Fuel", this)
+	log.warn("Out of Fuel", THIS)
 	return
 end
 
 local function excavate()
-    log.info("Excavating...", this) 
+    log.info("Excavating...", THIS) 
     local done = false
     while not done do
-        log.verbose(textutilities.serialize(done), this)
+        log.verbose(textutilities.serialize(done), THIS)
 	    for x=0, (size_x - 1) do
 		    for z=0, (size_z - 1) do
 			    if not tryForwards() then
@@ -367,11 +367,11 @@ end
 -- Excavateing 
 excavate()
 
-log.info("Returning to surface...", this)
+log.info("Returning to surface...", THIS)
 
 -- Return to where we started
 goTo( 0,0,0,0,-1 )
 unload( false )
 goTo( 0,0,0,0,1 )
 
-log.info("Mined "..(collected + unloaded).." items total.", this) 
+log.info("Mined "..(collected + unloaded).." items total.", THIS) 
