@@ -29,6 +29,13 @@ function ensure(question)
     end
 end 
 
+function buildView()
+    term.clear()
+    term.setCursorPos(1, 1)
+    print("ProTools Installer v"..P_VERSION)
+    print("")
+end
+
 -- Make sure we have the directory  
 function ensurePath(path)
     if not fs.exists(path) then 
@@ -92,10 +99,7 @@ local clean_state
 local clean_log
 local default_config_excavate_pro 
 
-term.clear()
-term.setCursorPos(1, 1)
-print("ProTools Installer v"..P_VERSION)
-print("")
+buildView()
 print("running...")
 
 ----- User inputs -----
@@ -111,41 +115,39 @@ elseif #tArgs == 0 then
     is_update = false 
     --default_config_excavate_pro = true
 else 
+    buildView()
     print("Invalid Arguments! Try Again.")
     return 
 end
 
 -- Ask if state should be reset
 while clean_state == nil do 
+    buildView()
     if not fs.exists("/ProTools/state") then 
         clean_state = false 
     else
         clean_state = ensure("Should the state be deleted?")
     end
-    term.clear()
-    term.setCursorPos(1, 1)
 end
 
 -- Ask if log should be reset
 while clean_log == nil do 
+    buildView()
     if not fs.exists("/ProTools/log") then 
         clean_log = false 
     else
         clean_log = ensure("Should the log be deleted?")
     end
-    term.clear()
-    term.setCursorPos(1, 1)
 end
 
 -- Ask if config should be reset
 while default_config_excavate_pro == nil do 
+    buildView()
     if not fs.exists("/ProTools/ExcavatePro/config") then 
         default_config_excavate_pro = true 
     else
         default_config_excavate_pro = ensure("Should the configuration for ExcavatePro be reset to default?")
     end
-    term.clear()
-    term.setCursorPos(1, 1)
 end
 
 ----- State -----
@@ -256,7 +258,7 @@ install_total= install_total+ 1
 term.clear()
 term.setCursorPos(1, 1)
 
-print("ProTools Installer v"..P_VERSION)
+buildView()
 if remove_success ~= remove_total then 
     print("Something went wrong by removing files.")
 elseif install_success ~= install_total then
