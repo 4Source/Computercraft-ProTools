@@ -25,11 +25,6 @@ local THIS = "ui_util"
  
 
 ----------- Functions -----------
--- Inizialisation
-local function init()
-    
-end 
-
 --
 function ensure(question)
     print(question.." (y/n): ")
@@ -78,7 +73,6 @@ local function anykey()
 end 
 
 ----------- Run -----------
-init()
 
 ----------- Return -----------
 return{

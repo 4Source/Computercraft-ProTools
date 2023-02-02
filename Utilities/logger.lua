@@ -35,11 +35,6 @@ local config_manager = require("ProTools.Utilities.configManager")
 local log_path, log_file_name = "/ProTools", "/log"
 
 ----------- Functions -----------
--- Inizialisation
-local function init()
-
-end 
-
 -- Convert Log Level to String
 local function logLevelToString(log_level)   
     if log_level == 0 then 
@@ -162,7 +157,6 @@ local function verbose(msg, caller, force_print, force_log)
 end
 
 ----------- Run -----------
-init()
 
 ----------- Return -----------
 return{
