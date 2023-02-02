@@ -5,7 +5,7 @@
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/nnMQE7U9
 -- Installation: Run installer below for full installation.
--- Installer: pastebin run wHmS4pNS
+-- Installer: 'pastebin run wHmS4pNS'
 -- Require: 'local pro_util = require("ProTools.Utilities.proUtilities")'
 -- Usage: 
  
