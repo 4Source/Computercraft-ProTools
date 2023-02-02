@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/iLvyjQYn 
 -- Installation: Run installer below for full installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local ui_util = require("ProTools.Utilities.uiUtil")'
+-- Require: 'ui_util = ui_util or require("ProTools.Utilities.uiUtil")'
 -- Usage: 
  
 ----------- Formatting -----------
@@ -16,8 +16,11 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+ui_util = {}
+
 ----------- Require -----------
-local log = require("ProTools.Utilities.logger")
+log = log or require("ProTools.Utilities.logger")
 
 ----------- Variables -----------
 -- Name of self
@@ -26,7 +29,7 @@ local THIS = "ui_util"
 
 ----------- Functions -----------
 --
-function ensure(question)
+function ui_util.ensure(question)
     print(question.." (y/n): ")
     local input = io.read()
     if input == "y" then
@@ -39,7 +42,7 @@ function ensure(question)
 end 
 
 -- Get Input from UI
-local function requestInput( input_text, helper_text )
+function ui_util.requestInput( input_text, helper_text )
     
     if not input_text then return false end
  
@@ -75,7 +78,4 @@ end
 ----------- Run -----------
 
 ----------- Return -----------
-return{
-    ensure = ensure,
-    requestInput = requestInput 
-}
+return ui_util

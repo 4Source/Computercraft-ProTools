@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/c7evHdJg
 -- Installation: Run installer below for full ProTools installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local log = require("ProTools.Utilities.logger")'
+-- Require: 'log = log or require("ProTools.Utilities.logger")'
 -- Usage: log.'level'(msg, b_force_print, b_force_log)
 --     level: The level how critical 
 --         fatal: One or more key functionalities are not working, program can't run probably.
@@ -26,9 +26,12 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+log = {}
+
 ----------- Require -----------
-local file_manager = require("ProTools.Utilities.fileManager") 
-local config_manager = require("ProTools.Utilities.configManager")
+file_manager = file_manager or require("ProTools.Utilities.fileManager") 
+config_manager = config_manager or require("ProTools.Utilities.configManager")
 
 ----------- Variables -----------
 -- Log file Directory
@@ -76,7 +79,7 @@ local function logLevelToNum(log_level)
 end 
 
 -- Log message to File
-local function log(msg, caller, log_level)
+local function logging(msg, caller, log_level)
     if not msg or msg == "" then return end
     if not caller then caller = "Unknown" end 
     if not log_level then log_level = "Unknown" end
@@ -85,86 +88,78 @@ local function log(msg, caller, log_level)
 end 
 
 -- Log Fatal 
-local function fatal(msg, caller, force_print, force_log)
+function log.fatal(msg, caller, force_print, force_log)
     local config = config_manager.searchCategory("Logger")
     if not config then return end
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("FATAL") then 
         print(msg)
     end 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("FATAL") then 
-        log(msg, caller, "FATAL")
+        logging(msg, caller, "FATAL")
     end 
 end
 
 -- Log Error
-local function error(msg, caller, force_print, force_log)
+function log.error(msg, caller, force_print, force_log)
     local config = config_manager.searchCategory("Logger")
     if not config then return end
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("ERROR") then 
         print(msg)
     end 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("ERROR") then 
-        log(msg, caller, "ERROR")
+        logging(msg, caller, "ERROR")
     end  
 end
 
 -- Log Warning
-local function warn(msg, caller, force_print, force_log)
+function log.warn(msg, caller, force_print, force_log)
     local config = config_manager.searchCategory("Logger")
     if not config then return end
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("WARN") then 
         print(msg)
     end 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("WARN") then 
-        log(msg, caller, "WARN")
+        logging(msg, caller, "WARN")
     end   
 end
 
 -- Log Info
-local function info(msg, caller, force_print, force_log)
+function log.info(msg, caller, force_print, force_log)
     local config = config_manager.searchCategory("Logger")
     if not config then return end
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("INFO") then 
         print(msg)
     end 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("INFO") then 
-        log(msg, caller, "INFO")
+        logging(msg, caller, "INFO")
     end  
 end
 
 -- Log Debug
-local function debug(msg, caller, force_print, force_log)
+function log.debug(msg, caller, force_print, force_log)
     local config = config_manager.searchCategory("Logger")
     if not config then return end
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("DEBUG") then 
         print(msg)
     end 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("DEBUG") then 
-        log(msg, caller, "DEBUG")
+        logging(msg, caller, "DEBUG")
     end  
 end
 
 -- Log Verbose
-local function verbose(msg, caller, force_print, force_log)
+function log.verbose(msg, caller, force_print, force_log)
     local config = config_manager.searchCategory("Logger")
     if not config then return end
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("VERBOSE") then 
         print(msg)
     end 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("VERBOSE") then 
-        log(msg, caller, "VERBOSE")
+        logging(msg, caller, "VERBOSE")
     end   
 end
 
 ----------- Run -----------
 
 ----------- Return -----------
-return{
-    config = config,
-    fatal = fatal,
-    error = error,
-    warn = warn,
-    info = info,
-    debug = debug,
-    verbose = verbose 
-}
+return log

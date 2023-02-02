@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/SkTYkVhV
 -- Installation: Run installer below for full installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local config_manager = require("ProTools.Utilities.configManager")'
+-- Require: 'config_manager = config_manager or require("ProTools.Utilities.configManager")'
 -- Usage: 
  
 ----------- Formatting -----------
@@ -16,8 +16,11 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+config_manager = {}
+
 ----------- Require -----------
-local file_manager = require("ProTools.Utilities.fileManager") 
+file_manager = file_manager or require("ProTools.Utilities.fileManager") 
 
 ----------- Variables -----------
 local config_path, config_file_name = "/ProTools/ExcavatePro", "/config"
@@ -35,7 +38,7 @@ local function init()
 end 
 
 -- 
-local function addCategory(category, configs)
+function config_manager.addCategory(category, configs)
     local exists, data = file_manager.loadJSON(config_path..config_file_name)
     if exists then 
         for i = 1, #data.CATEGORYS do
@@ -52,7 +55,7 @@ local function addCategory(category, configs)
     end 
 end 
 
-local function searchCategory(category)
+function config_manager.searchCategory(category)
     local exists, data = file_manager.loadJSON(config_path..config_file_name)
     if exists then 
         for i = 1, #data.CATEGORYS do
@@ -67,7 +70,4 @@ end
 init()
 
 ----------- Return -----------
-return{
-    addCategory = addCategory,
-    searchCategory = searchCategory
-}
+return config_manager

@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/9RTF5CDF
 -- Installation: Run installer below for full installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local inv_manager = require("ProTools.Utilities.inventoryManager")'
+-- Require: 'inv_manager = inv_manager or require("ProTools.Utilities.inventoryManager")'
 -- Usage: 
  
 ----------- Formatting -----------
@@ -16,8 +16,11 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+inv_manager = {}
+
 ----------- Require -----------
-local log = require("ProTools.Utilities.logger")
+log = log or require("ProTools.Utilities.logger")
 
 ----------- Variables -----------
 -- Name of self
@@ -29,6 +32,4 @@ local THIS = "inv_manager"
 ----------- Run -----------
 
 ----------- Return -----------
-return{
-    
-}
+return inv_manager

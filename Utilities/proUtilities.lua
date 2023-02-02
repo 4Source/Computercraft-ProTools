@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/nnMQE7U9
 -- Installation: Run installer below for full installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local pro_util = require("ProTools.Utilities.proUtilities")'
+-- Require: 'pro_util = pro_util or require("ProTools.Utilities.proUtilities")'
 -- Usage: 
  
 ----------- Formatting -----------
@@ -16,6 +16,9 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+pro_util = {}
+
 ----------- Require -----------
 
 ----------- Variables -----------
@@ -24,7 +27,7 @@ local THIS = "pro_util"
 
 ----------- Functions -----------
 -- Split Sting 
-local function split(inputstr, sep)
+function pro_util.split(inputstr, sep)
     if sep == nil then
         sep = "%s"
     end
@@ -38,6 +41,4 @@ end
 ----------- Run -----------
 
 ----------- Return -----------
-return{
-   split = split 
-}
+return pro_util

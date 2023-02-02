@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/gba5abkG
 -- Installation: Run installer below for full installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local mine_util = require("ProTools.Utilities.mineUtilities")'
+-- Require: 'mine_util = mine_util or require("ProTools.Utilities.mineUtilities")'
 -- Usage: 
  
 ----------- Formatting -----------
@@ -16,8 +16,11 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+mine_util = {}
+
 ----------- Require -----------
-local log = require("ProTools.Utilities.logger")
+log = log or require("ProTools.Utilities.logger")
  
 ----------- Variables -----------
 -- Name of self
@@ -26,7 +29,7 @@ local THIS = "mine_util"
 ----------- Functions -----------
 ----- Move Functions -----
 -- Turtle turn left
-function turnLeft()
+function mine_util.turnLeft()
     local done_turtle_turn_left = turtle.turnLeft()
     -- if not done_turtle_turn_left then return false, "Turtle failed to turn left." end
     if not done_turtle_turn_left then 
@@ -41,7 +44,7 @@ function turnLeft()
 end
  
 -- Turtle turn rigth
-function turnRight()
+function mine_util.turnRight()
     local done_turtle_turn_right = turtle.turnRight()
     -- if not done_turtle_turn_right then return false, "Turtle failed to turn right." end
     if not done_turtle_turn_right then 
@@ -56,7 +59,7 @@ function turnRight()
 end 
  
 -- Turtle move up. Returns false if failed.
-function up()
+function mine_util.up()
     local done_turtle_up = turtle.up()
     -- if not done_turtle_up then return false, "Turtle failed to move up." end
     if not done_turtle_up then
@@ -71,7 +74,7 @@ function up()
 end
  
 -- Turtle move down. Returns false if failed.  
-function down()
+function mine_util.down()
     local done_turtle_down = turtle.down()
     -- if not done_turtle_down then return false, "Turtle failed to move down." end
     if not done_turtle_down then 
@@ -86,7 +89,7 @@ function down()
 end
  
 -- Turtle move forward. Returns false if failed.  
-function forward()
+function mine_util.forward()
     local done_turtle_forward = turtle.forward()
     -- if not done_turtle_forward then return false, "Turtle failed to move forward." end
     if not done_turtle_forward then 
@@ -103,7 +106,7 @@ end
 
 ----- Digging Functions -----
 -- Return false if there is no possibly way to move 
-function digForward()
+function mine_util.digForward()
     print("digForward")
     turtle.dig()
     
@@ -123,7 +126,7 @@ function digForward()
 end 
  
 -- Return false if there is no possibly way to move 
-function digDown()
+function mine_util.digDown()
     print("digDown")
     turtle.digDown()
     
@@ -140,6 +143,4 @@ end
 ----------- Run -----------
 
 ----------- Return -----------
-return{
-    
-}
+return mine_util

@@ -1,5 +1,5 @@
-local state_manager = require("ProTools.Utilities.stateManager")
-local log = require("ProTools.Utilities.logger")
+state_manager = state_manager or require("ProTools.Utilities.stateManager")
+log = log or require("ProTools.Utilities.logger")
 
 -- Program Version (MAJOR.MINOR.PATCH-PRERELEASE)
 P_VERSION = "0.1.0"

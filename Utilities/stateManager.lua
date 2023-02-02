@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/fkVjJJME
 -- Installation: Run installer below for full installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local state_manager = require("ProTools.Utilities.stateManager")'
+-- Require: 'state_manager = state_manager or require("ProTools.Utilities.stateManager")'
 -- Usage: 
  
 ----------- Formatting -----------
@@ -16,10 +16,13 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+state_manager = {}
+
 ----------- Require -----------
-local file_manager = require("ProTools.Utilities.fileManager")
-local ui_util = require("ProTools.Utilities.uiUtil")
-local log = require("ProTools.Utilities.logger")
+file_manager = file_manager or require("ProTools.Utilities.fileManager")
+ui_util = ui_util or require("ProTools.Utilities.uiUtil")
+log = log or require("ProTools.Utilities.logger")
 
 ----------- Variables -----------
 -- Name of self
@@ -73,7 +76,7 @@ local function loadState( program_version )
 end
 
 -- 
-local function initState( program_version )
+function state_manager.initState( program_version )
     log.info("Initialize State...", THIS)
     if not loadState(program_version) then 
         while sure == nil do 
@@ -124,68 +127,68 @@ local function initState( program_version )
 end 
 
 -- 
-local function getCurrent()
+function state_manager.getCurrent()
     return state.current
 end
 
-local function setCurrent(in_state)
+function state_manager.setCurrent(in_state)
     state.current.pos_x, state.current.pos_z, state.current.pos_y = in_state.pos_x, in_state.pos_z, in_state.pos_y
     state.current.dir_x, state.current.dir_z = in_state.dir_x, in_state.dir_z
     saveState()
 end
 
-local function getTarget()
+function state_manager.getTarget()
     return state.target
 end
 
-local function setTarget(in_state)
+function state_manager.setTarget(in_state)
     state.target.pos_x, state.target.pos_z, state.target.pos_y = in_state.pos_x, in_state.pos_z, in_state.pos_y
     state.target.dir_x, state.target.dir_z = in_state.dir_x, in_state.dir_z
     saveState()
 end
 
-local function getProgress()
+function state_manager.getProgress()
     return state.progress
 end
 
-local function setProgress(in_state)
+function state_manager.setProgress(in_state)
     state.progress.pos_x, state.progress.pos_z, state.progress.pos_y = in_state.pos_x, in_state.pos_z, in_state.pos_y
     state.progress.dir_x, state.progress.dir_z = in_state.dir_x, in_state.dir_z
     saveState()
 end
 
-local function getSizeX()
+function state_manager.getSizeX()
     return state.size_x
 end
 
-local function setSizeX(size)
+function state_manager.setSizeX(size)
     state.size_x = size
     saveState()
 end
 
-local function getSizeZ()
+function state_manager.getSizeZ()
     return state.size_z
 end
 
-local function setSizeZ(size)
+function state_manager.setSizeZ(size)
     state.size_z = size
     saveState()
 end
 
-local function getSizeY()
+function state_manager.getSizeY()
     return state.size_y
 end
 
-local function setSizeY(size)
+function state_manager.setSizeY(size)
     state.size_y = size
     saveState()
 end
 
-local function getFinished()
+function state_manager.getFinished()
     return state.finished
 end
 
-local function setFinished(finished)
+function state_manager.setFinished(finished)
     state.finished = finished
     saveState()
 end
@@ -194,20 +197,4 @@ end
 init()
 
 ----------- Return -----------
-return{
-    initState = initState,
-    getCurrent = getCurrent,
-    setCurrent = setCurrent,
-    getTarget = getTarget,
-    setTarget = setTarget,
-    getProgress = getProgress,
-    setProgress = setProgress,
-    getSizeX = getSizeX,
-    setSizeX = setSizeX,
-    getSizeZ = getSizeZ,
-    setSizeZ = setSizeZ,
-    getSizeY = getSizeY,
-    setSizeY = setSizeY,
-    isFinished = getFinished,
-    setFinished = setFinished
-}
+return state_manager

@@ -6,7 +6,7 @@
 -- Pastebin: https://pastebin.com/dNEyanjZ 
 -- Installation: Run installer below for full installation.
 -- Installer: 'pastebin run wHmS4pNS'
--- Require: 'local fuel_manager = require("ProTools.Utilities.fuelManager")'
+-- Require: 'fuel_manager = fuel_manager or require("ProTools.Utilities.fuelManager")'
 -- Usage:
  
 ----------- Formatting -----------
@@ -16,8 +16,11 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
 
+----------- Module -----------
+fuel_manager = {}
+
 ----------- Require -----------
-local log = require("ProTools.Utilities.logger")
+log = log or require("ProTools.Utilities.logger")
 
 ----------- Variables -----------
 -- Name of self
@@ -29,6 +32,4 @@ local THIS = "fuel_manager"
 ----------- Run -----------
 
 ----------- Return -----------
-return{
-    
-}
+return fuel_manager
