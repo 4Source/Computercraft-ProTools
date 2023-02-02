@@ -8,7 +8,13 @@
 -- Installer: 'pastebin run wHmS4pNS'
 -- Require: 'local log = require("ProTools.Utilities.logger")'
 -- Usage: log.'level'(msg, b_force_print, b_force_log)
---     level: fatal error warn info debug verbose
+--     level: The level how critical 
+--         fatal: One or more key functionalities are not working, program can't run probably.
+--         error: An issue preventing one or more functionalities from properly functioning.
+--         warn: Indicates that something unexpected happened, but the code can continue the work.
+--         info: The standard log level indicating that something happened.
+--         debug: Used for diagnosing issues and troubleshooting.
+--         verbose: Very detailed information like what happened each step.
 --     msg: The message which should be logged.
 --     b_force_print: (optional) Forces to print the message independent from log level.
 --     b_force_log: (optional) Forces to log the message independent from log level.
