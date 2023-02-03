@@ -62,7 +62,7 @@ function removeFile(path, force)
     end
 end
 
-function downloadFile(path, pasteCode, force)
+function downloadFile(path, paste_code, force)
     local success
     if fs.exists(path) then 
         local sure = force
@@ -72,14 +72,14 @@ function downloadFile(path, pasteCode, force)
         end
         if sure then 
             fs.delete(path)
-            success = shell.run("pastebin", "get", pasteCode, path)
+            success = shell.run("pastebin", "get", paste_code, path)
             print("Update Successful.")
         else 
             success = false
             print("Update Canceled.") 
         end
     else 
-        success = shell.run("pastebin", "get", pasteCode, path)
+        success = shell.run("pastebin", "get", paste_code, path)
         print("Download Successful.")
     end
     return success
@@ -188,32 +188,8 @@ if downloadFile("/ProTools/Utilities/proUtilities", "nnMQE7U9", is_update) then
 end 
 install_total = install_total+ 1
 
--- inventoryManager Install/Update
-if downloadFile("/ProTools/Utilities/inventoryManager", "9RTF5CDF", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- fuelManager Install/Update
-if downloadFile("/ProTools/Utilities/fuelManager", "dNEyanjZ", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- fileManager Install/Update
-if downloadFile("/ProTools/Utilities/fileUtilities", "8nBVnDHu", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- uiUtil Install/Update
-if downloadFile("/ProTools/Utilities/uiUtil", "iLvyjQYn", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- mineUtilities Install/Update
-if downloadFile("/ProTools/Utilities/mineUtilities", "gba5abkG", is_update) then
+-- logger Install/Update
+if downloadFile("/ProTools/Utilities/logger", "c7evHdJg", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
@@ -230,8 +206,14 @@ if downloadFile("/ProTools/Utilities/configManager", "SkTYkVhV", is_update) then
 end 
 install_total = install_total+ 1
 
--- logger Install/Update
-if downloadFile("/ProTools/Utilities/logger", "c7evHdJg", is_update) then
+-- fileManager Install/Update
+if downloadFile("/ProTools/Utilities/fileUtilities", "8nBVnDHu", is_update) then
+    install_success = install_success + 1
+end 
+install_total = install_total+ 1
+
+-- uiUtil Install/Update
+if downloadFile("/ProTools/Utilities/uiUtil", "iLvyjQYn", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
@@ -243,11 +225,6 @@ if downloadFile("ExcavatePro", "UmUvXfqs", is_update) then
 end 
 install_total= install_total+ 1
 
--- Excavate Test 
-if downloadFile("ExcavateTest", "VKXH5kjq", is_update) then 
-    install_success = install_success + 1
-end 
-install_total= install_total+ 1
    
 
 ----- Finished ----- 
