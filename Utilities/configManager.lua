@@ -38,7 +38,7 @@ local function init()
 end 
 
 -- 
-function config_manager.addCategory(category, configs)
+local function addCategory(category, configs)
     local exists, data = file_manager.loadJSON(config_path..config_file_name)
     if exists then 
         for i = 1, #data.CATEGORYS do
