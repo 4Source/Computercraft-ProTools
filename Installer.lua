@@ -45,12 +45,10 @@ end
 
 function removeFile(path, force)
     if fs.exists(path) then 
-        local sure 
-        if force then 
-            sure = true
-        end
+        local sure = force 
+
         while sure == nil do 
-            sure = ensure("Are you shoure you want to remove "..path.."?")
+            sure = ensure("Are you sure you want to remove "..path.."?")
         end
         if sure then 
             fs.delete(path)
@@ -67,12 +65,10 @@ end
 function downloadFile(path, pasteCode, force)
     local success
     if fs.exists(path) then 
-        local sure 
-        if force then 
-            sure = true
-        end
+        local sure = force
+
         while sure == nil do 
-            sure = ensure("Are you shoure you want to update "..path.."?")
+            sure = ensure("Are you sure you want to update "..path.."?")
         end
         if sure then 
             fs.delete(path)
@@ -205,7 +201,7 @@ end
 install_total = install_total+ 1
 
 -- fileManager Install/Update
-if downloadFile("/ProTools/Utilities/fileManager", "8nBVnDHu", is_update) then
+if downloadFile("/ProTools/Utilities/fileUtilities", "8nBVnDHu", is_update) then
     install_success = install_success + 1
 end 
 install_total = install_total+ 1
