@@ -327,11 +327,11 @@ if not refuel() then
 	return
 end
 
-local function excavate()
+local function excavate(size_x, size_z)
     log.info("Excavating...", THIS) 
     local done = false
     while not done do
-        log.verbose(textutilities.serialize(done), THIS)
+        log.verbose(textutils.serialize(done), THIS)
 	    for x=0, (size_x - 1) do
 		    for z=0, (size_z - 1) do
 			    if not tryForwards() then
@@ -365,7 +365,7 @@ local function excavate()
 end 
 
 -- Excavateing 
-excavate()
+excavate(state_manager.getSizeX(), state_manager.getSizeX())
 
 log.info("Returning to surface...", THIS)
 
