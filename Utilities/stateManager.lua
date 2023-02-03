@@ -88,8 +88,19 @@ end
 -- Create Default State and return it.
 function state_manager.createState()
     log.verbose("Creating state...", THIS)
+    local paste_code
 
-    file_util.downloadFile("/ProTools/state", pasteCode, true)
+    local program = shell.getRunningProgram()
+    if program == "ExcavatePro" then
+        paste_code = "bRFTMvty"
+    end
+
+    if not paste_code then 
+        log.error("No default state found for this program!", THIS)
+        return 
+    end
+
+    file_util.downloadFile("/ProTools/state", paste_code, true)
     return getState()
 end 
 
