@@ -20,7 +20,7 @@
 pro_util = {}
 
 ----------- Require -----------
-
+ 
 ----------- Variables -----------
 -- Name of self
 local THIS = "pro_util"
@@ -36,6 +36,15 @@ function pro_util.split(inputstr, sep)
         table.insert(t, str)
     end
     return t
+end 
+
+-- Returns formated sting with variable name, type and value 
+function pro_util.varToString(var, var_name)
+    local name = var_name or "" 
+    local type = type(var) or ""
+    local value = var or ""
+
+    return name.."("..type.."): "..value
 end 
 
 ----------- Run -----------
