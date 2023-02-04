@@ -14,7 +14,49 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
  
- P_VERSION = "0.1.0"
+P_VERSION = "0.1.0"
+UTIL_PATH = "/ProTools/Utilities"
+
+module_list = {
+    {   
+        name = "proUtilities",
+        path = UTIL_PATH,
+        paste_code = "nnMQE7U9"
+    },
+    {
+        name = "logger",
+        path = UTIL_PATH,
+        paste_code = "c7evHdJg"
+    },
+    {
+        name = "stateManager",
+        path = UTIL_PATH,
+        paste_code = "fkVjJJME"
+    },
+    {
+        name = "configManager",
+        path = UTIL_PATH,
+        paste_code = "SkTYkVhV"
+    },
+    {
+        name = "fileUtilities",
+        path = UTIL_PATH,
+        paste_code = "8nBVnDHu"
+    },
+    {
+        name = "uiUtil",
+        path = UTIL_PATH,
+        paste_code = "iLvyjQYn"
+    }
+}
+
+program_list = {
+    {
+        name = "ExcavatePro",
+        path = "",
+        paste_code = "UmUvXfqs"
+    }
+}
 
 ----------- Helper functions -----------
 function ensure(question)
@@ -86,8 +128,14 @@ function downloadFile(path, paste_code, force)
 end 
 
 ----------- RUN -----------
-local install_success = 0
-local install_total = 0
+local download_success = 0
+local download_total = 0
+local install_module_success = 0
+local install_module_total = 0
+local install_program_success = 0
+local install_program_total = 0
+local download_config_success = 0
+local download_config_total = 0
 local remove_success = 0
 local remove_total = 0
 local is_update 
@@ -169,63 +217,39 @@ end
 -- ExcavatePro Config Update
 if default_config_excavate_pro then
     if downloadFile("/ProTools/ExcavatePro/config", "W6KuhCeR", default_config_excavate_pro) then 
-        install_success = install_success + 1
+        download_config_success = download_config_success + 1
+        download_success= download_success + 1
     end 
-    install_total = install_total+ 1
+    download_config_total = download_config_total + 1
+    download_total= download_total + 1
 end
 
 ----- File System -----
 -- Ensure Utilities path exist
-ensurePath("/ProTools/Utilities")
+ensurePath(UTIL_PATH)
 -- Ensure ExcavatePro Config path exist
 ensurePath("/ProTools/ExcavatePro")  
 
+----- Install Modules ----- 
+for key, value in pairs(module_list) do
+    if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
+        install_module_success = install_module_success + 1
+        download_success= download_success + 1
+    end 
+    install_module_total= install_module_total + 1
+    download_total= download_total + 1
+end
 
------ Utilities -----
--- proUtilities Install/Update 
-if downloadFile("/ProTools/Utilities/proUtilities", "nnMQE7U9", is_update) then 
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
+----- Install Programs ----- 
+for key, value in pairs(program_list) do
+    if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
+        install_program_success = install_program_success + 1
+        download_success = download_success + 1
+    end 
+    install_program_total= install_program_total + 1
+    download_total= download_total + 1
+end
 
--- logger Install/Update
-if downloadFile("/ProTools/Utilities/logger", "c7evHdJg", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- stateManager Install/Update
-if downloadFile("/ProTools/Utilities/stateManager", "fkVjJJME", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- configManager Install/Update
-if downloadFile("/ProTools/Utilities/configManager", "SkTYkVhV", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- fileManager Install/Update
-if downloadFile("/ProTools/Utilities/fileUtilities", "8nBVnDHu", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
--- uiUtil Install/Update
-if downloadFile("/ProTools/Utilities/uiUtil", "iLvyjQYn", is_update) then
-    install_success = install_success + 1
-end 
-install_total = install_total+ 1
-
------ Programs ----- 
--- ExcavatePro Update
-if downloadFile("ExcavatePro", "UmUvXfqs", is_update) then
-    install_success = install_success + 1
-end 
-install_total= install_total+ 1
-
-   
 
 ----- Finished ----- 
 term.clear()
@@ -234,7 +258,7 @@ term.setCursorPos(1, 1)
 buildView()
 if remove_success ~= remove_total then 
     print("Something went wrong by removing files.")
-elseif install_success ~= install_total then
+elseif download_success ~= download_total then
     print("Something went wrong by downloading files.")
 else
     print("Successfully completed.")
@@ -242,6 +266,22 @@ end
 if remove_total > 0 then
     print("Removed: ("..remove_success.."/"..remove_total..")")
 end
-if install_total > 0 then 
-    print("Downloaded: ("..install_success.."/"..install_total..")")
+if download_total > 0 then 
+    print("Downloaded: ("..download_success.."/"..download_total..")")
+end 
+
+if install_module_total > 0 or install_program_total > 0 or download_config_total > 0 then 
+    print("--------------------")
+end
+
+if install_module_total > 0 then 
+    print("\t\t\tModules: ("..install_module_success.."/"..install_module_total..")")
+end 
+
+if install_program_total > 0 then 
+    print("\t\tPrograms: ("..install_program_success.."/"..install_program_total..")")
+end 
+
+if download_config_total > 0 then 
+    print("\t\t\t\tConfig: ("..download_config_success.."/"..download_config_total..")")
 end 
