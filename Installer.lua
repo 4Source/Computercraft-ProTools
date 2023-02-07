@@ -64,10 +64,11 @@ program_list = {
 
 -- List of Executable Programms
 default_config_list = {
-    {
+    {   
         name = "config",
         path = "/ProTools/ExcavatePro",
-        paste_code = "W6KuhCeR"
+        paste_code = "W6KuhCeR",
+        program = "ExcavatePro"
     }
 }
 
@@ -191,10 +192,7 @@ local remove_total = 0
 local is_install 
 local is_update  
 local is_deinstall
-
-local clean_state 
-local clean_log
-local default_config_excavate_pro 
+local is_reset
 
 buildView()
 print("running...")
@@ -204,7 +202,7 @@ print("running...")
 local tArgs = { ... }
 
 -- Update all Programs or Specified ones. Don't Change configs, state or log files
-if #tArgs <= 1 and tArgs[1] == "update" then 
+if #tArgs >= 1 and tArgs[1] == "update" then 
     is_install = true
     is_update = true
     is_deinstall = false
@@ -229,6 +227,32 @@ elseif #tArgs == 0 then
     is_update = false
     is_deinstall = false
 
+-- Reset config to default
+elseif #tArgs > 1 and tArgs[1] == "reset" then 
+    is_install = false
+    is_update = false
+    is_deinstall = false
+    is_reset = true
+
+    if not (#tArgs == 2 and tArgs[2] == "all") then
+        local conf = {}
+
+        for i=2, #tArgs do 
+            local match 
+            for key, value in pairs(default_config_list) do
+                if tArgs[i] == value.program then 
+                    match = true
+                    table.insert(conf, value)
+                end
+            end
+            if not match then 
+                print("Invalid argument at "..i)
+                return
+            end
+        end
+
+        default_config_list = conf
+    end
 else 
     buildView()
     print("Invalid Arguments! Try Again.\n\nINSTALLATION:\npastebin run wHmS4pNS\nUPDATE:\npastebin run wHmS4pNS update\nREINSTALLATION:\npastebin run wHmS4pNS reinstall\nDEINSTALLATION:\npastebin run wHmS4pNS deinstall")
@@ -284,10 +308,10 @@ if is_install then
 end
 
 ----- Default Config ----- 
-if is_install and not is_update then
+if (is_install and not is_update) or is_reset then
     for key, value in pairs(default_config_list) do
         ensurePath(value.path)
-        if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
+        if downloadFile(value.path.."/"..value.name, value.paste_code, true) then
             download_config_success = download_config_success + 1
             download_success = download_success + 1
         end 
