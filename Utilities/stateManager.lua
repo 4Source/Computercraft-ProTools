@@ -20,7 +20,7 @@
 state_manager = {}
 
 ----------- Require -----------
-file_util = file_util or require("ProTools.Utilities.fileManager")
+file_util = file_util or require("ProTools.Utilities.fileUtilities")
 log = log or require("ProTools.Utilities.logger")
 
 ----------- Variables -----------
@@ -29,6 +29,10 @@ local THIS = "state_manager"
 
 -- State Directory
 local state_path, state_file_name = "/ProTools", "/state"
+
+-- 
+state_manager.state = {}
+
 
 ----------- Functions -----------
 -- Inizialisation
@@ -43,7 +47,7 @@ end
 -- Save state in file. return false if went wrong. 
 function state_manager.saveState()
     log.debug("Save state...", THIS)
-    if not file_util.saveJSON(state_path..state_file_name, state) then 
+    if not file_util.saveJSON(state_path..state_file_name, state_manager.state) then 
         log.warn("Something went wrong saving the state.", THIS)
         return false
     end
@@ -60,8 +64,8 @@ function state_manager.saveInState(state_in)
     return true
 end 
 
--- Load the state from file and return it.
-function state_manager.getState()
+-- Load the state from file
+function state_manager.loadState()
     log.verbose("Search for state...", THIS)
     exists, data = file_util.loadJSON( state_path..state_file_name )
     if exists then 
@@ -78,14 +82,15 @@ function state_manager.getState()
             log.warn("Version of state file is incompatible to running Program!", THIS)
             return
         end  
-        -- return found state
-        return data
+
+        state_manager.state = data
+        return 
     end 
     log.warn("No state found.", THIS)
     return 
 end
 
--- Create Default State and return it.
+-- Create Default State
 function state_manager.createState()
     log.verbose("Creating state...", THIS)
     local paste_code
@@ -101,8 +106,14 @@ function state_manager.createState()
     end
 
     file_util.downloadFile("/ProTools/state", paste_code, true)
-    return getState()
+
+    state_manager.loadState()
 end 
+
+-- Log the current State
+function state_manager.log(force_print, force_log)
+    log.debug(textutils.serialise(state_manager.state, {compact = true}), THIS, force_print, force_log)
+end
 
 ----------- Run -----------
 init()
