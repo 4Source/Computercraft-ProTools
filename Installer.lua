@@ -85,15 +85,28 @@ function ensurePath(path)
     end 
 end
 
-function removeFile(path, force)
+function removeFile(path, force, not_clean_empty)
     if fs.exists(path) then 
-        local sure = force 
+        local sure 
+        if force then 
+            sure = true
+        end
 
         while sure == nil do 
             sure = ensure("Are you sure you want to remove "..path.."?")
         end
         if sure then 
             fs.delete(path)
+
+            if not not_clean_empty then
+                local parant_dir = fs.getDir(path)
+                local files = fs.list(parant_dir)
+                while #files == 0 do 
+                    fs.delete(parant_dir)
+                    parant_dir = fs.getDir(parant_dir)
+                    files = fs.list(parant_dir)
+                end
+            end
             return true
         else 
             print("Canceled...")
@@ -107,7 +120,10 @@ end
 function downloadFile(path, paste_code, force)
     local success
     if fs.exists(path) then 
-        local sure = force
+        local sure 
+        if force then 
+            sure = true
+        end
 
         while sure == nil do 
             sure = ensure("Are you sure you want to update "..path.."?")

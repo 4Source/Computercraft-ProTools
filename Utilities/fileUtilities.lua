@@ -89,7 +89,7 @@ end
 function file_util.appendFile(file_path, data_in)
     local file = io.open(file_path,"a")
     if not file then return false end 
-    if file:write(textutils.serialize(data_in).."\n") then 
+    if file:write(textutils.serialize(data_in)) then 
         return file:close()
     else 
         return false
@@ -97,9 +97,12 @@ function file_util.appendFile(file_path, data_in)
 end
 
 -- Delete File
-function file_util.removeFile(path, force)
+function file_util.removeFile(path, force, not_clean_empty)
     if fs.exists(path) then 
-        local sure = force
+        local sure 
+        if force then 
+            sure = true
+        end
 
         while sure == nil do 
             sure = ui_util.ensure("Are you sure you want to remove "..path.."?")
@@ -107,6 +110,18 @@ function file_util.removeFile(path, force)
         if sure then 
             fs.delete(path)
             log.info("Delete "..path.." Successful.")
+
+            if not not_clean_empty then
+                local parant_dir = fs.getDir(path)
+                local files = fs.list(parant_dir)
+                while #files == 0 do 
+                    fs.delete(parant_dir)
+                    log.verbose("Cleaned empty path Successful. ("..parant_dir..")")
+                    parant_dir = fs.getDir(parant_dir)
+                    files = fs.list(parant_dir)
+                end
+            end
+
             return true
         else 
             log.info("Delete "..path.."canceled...", THIS)
@@ -121,7 +136,10 @@ end
 function file_util.downloadFile(path, pasteCode, force)
     local success
     if fs.exists(path) then 
-        local sure = force
+        local sure 
+        if force then 
+            sure = true
+        end
 
         while sure == nil do 
             sure = ui_util.ensure("Are you sure you want to update "..path.."?")
