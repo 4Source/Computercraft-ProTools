@@ -30,7 +30,7 @@
 log = {}
 
 ----------- Require -----------
-file_manager = file_manager or require("ProTools.Utilities.fileManager") 
+file_util = file_util or require("ProTools.Utilities.fileUtilities")
 config_manager = config_manager or require("ProTools.Utilities.configManager")
 
 ----------- Variables -----------
@@ -79,21 +79,43 @@ local function logLevelToNum(log_level)
 end 
 
 -- Log message to File
-local function logging(msg, caller, log_level)
+local function logging(msg, caller, log_level, without_timestamp)
+    -- exit if no message resived
     if not msg or msg == "" then return end
+    
+    -- log message 
+    local log_msg = {}
+
+    -- Add timestamp
+    if not without_timestamp then 
+        table.insert(log_msg, 1, textutils.formatTime(os.time("local")))
+    end 
+    
+    -- Add caller
     if not caller then caller = "Unknown" end 
+    table.insert(log_msg, 2, caller)
+
+    -- Add log level
     if not log_level then log_level = "Unknown" end
-    local log_msg = caller.."|"..log_level..": "..msg
-    file_manager.appendFile(log_path..log_file_name, log_msg)
+    table.insert(log_msg, 3, log_level)
+
+    -- Add message
+    table.insert(log_msg, 4, msg)
+
+    -- Save in file
+    file_util.appendFile(log_path..log_file_name, log_msg)
 end 
 
 -- Log Fatal 
 function log.fatal(msg, caller, force_print, force_log)
+    -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
     if not config then return end
+    -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("FATAL") then 
         print(msg)
     end 
+    -- log the message if level is high enough 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("FATAL") then 
         logging(msg, caller, "FATAL")
     end 
@@ -101,11 +123,14 @@ end
 
 -- Log Error
 function log.error(msg, caller, force_print, force_log)
+    -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
     if not config then return end
+    -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("ERROR") then 
         print(msg)
     end 
+    -- log the message if level is high enough 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("ERROR") then 
         logging(msg, caller, "ERROR")
     end  
@@ -113,11 +138,14 @@ end
 
 -- Log Warning
 function log.warn(msg, caller, force_print, force_log)
+    -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
     if not config then return end
+    -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("WARN") then 
         print(msg)
     end 
+    -- log the message if level is high enough 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("WARN") then 
         logging(msg, caller, "WARN")
     end   
@@ -125,11 +153,14 @@ end
 
 -- Log Info
 function log.info(msg, caller, force_print, force_log)
+    -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
     if not config then return end
+    -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("INFO") then 
         print(msg)
     end 
+    -- log the message if level is high enough 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("INFO") then 
         logging(msg, caller, "INFO")
     end  
@@ -137,11 +168,14 @@ end
 
 -- Log Debug
 function log.debug(msg, caller, force_print, force_log)
+    -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
     if not config then return end
+    -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("DEBUG") then 
         print(msg)
     end 
+    -- log the message if level is high enough 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("DEBUG") then 
         logging(msg, caller, "DEBUG")
     end  
@@ -149,11 +183,14 @@ end
 
 -- Log Verbose
 function log.verbose(msg, caller, force_print, force_log)
+    -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
     if not config then return end
+    -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("VERBOSE") then 
         print(msg)
     end 
+    -- log the message if level is high enough 
     if force_log or logLevelToNum(config.LOG_LEVEL) >= logLevelToNum("VERBOSE") then 
         logging(msg, caller, "VERBOSE")
     end   
