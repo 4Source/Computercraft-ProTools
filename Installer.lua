@@ -6,6 +6,8 @@
 -- Pastebin: https://pastebin.com/wHmS4pNS
 -- Install: 'pastebin run wHmS4pNS'
 -- Update: 'pastebin run wHmS4pNS update'
+-- Reinstall: 'pastebin run wHmS4pNS reinstall'
+-- Deinstall: 'pastebin run wHmS4pNS deinstall'
  
 ----------- Formatting -----------
 -- Constants: Uppercase and Underscores (CONSTANTS_EXAMPEL)
@@ -17,6 +19,7 @@
 P_VERSION = "0.1.0"
 UTIL_PATH = "/ProTools/Utilities"
 
+-- Modules for the Executables
 module_list = {
     {   
         name = "proUtilities",
@@ -50,11 +53,37 @@ module_list = {
     }
 }
 
+-- List of Executable Programms
 program_list = {
     {
         name = "ExcavatePro",
         path = "",
         paste_code = "UmUvXfqs"
+    }
+}
+
+-- List of Executable Programms
+default_config_list = {
+    {
+        name = "config",
+        path = "/ProTools/ExcavatePro",
+        paste_code = "W6KuhCeR"
+    }
+}
+
+-- Files they are user specific 
+ufile_list = {
+    {   
+        name = "state",
+        path = "/ProTools"
+    },
+    {   
+        name = "log",
+        path = "/ProTools"
+    },
+    {   
+        name = "config",
+        path = "/ProTools/ExcavatePro"
     }
 }
 
@@ -146,15 +175,23 @@ end
 ----------- RUN -----------
 local download_success = 0
 local download_total = 0
+
 local install_module_success = 0
 local install_module_total = 0
+
 local install_program_success = 0
 local install_program_total = 0
+
 local download_config_success = 0
 local download_config_total = 0
+
 local remove_success = 0
 local remove_total = 0
-local is_update 
+
+local is_install 
+local is_update  
+local is_deinstall
+
 local clean_state 
 local clean_log
 local default_config_excavate_pro 
@@ -165,105 +202,98 @@ print("running...")
 ----- User inputs -----
 -- Check for input arguments 
 local tArgs = { ... }
+
+-- Update all Programs or Specified ones. Don't Change configs, state or log files
 if #tArgs <= 1 and tArgs[1] == "update" then 
-    if #tArgs == 1 then 
-        is_update = tArgs[1] == "update"
-    else
-        -- for loop thrue args to see wich program should be updated
-    end
+    is_install = true
+    is_update = true
+    is_deinstall = false
+
+    -- for loop thrue args to see wich program should be updated
+
+-- Deinstall everything and remove all files and Install everything
+elseif #tArgs == 1 and tArgs[1] == "reinstall" then 
+    is_install = true
+    is_update = false
+    is_deinstall = true
+
+-- Deinstall everything and remove all files
+elseif #tArgs == 1 and tArgs[1] == "deinstall" then 
+    is_install = false
+    is_update = false
+    is_deinstall = true
+
+-- Install everything 
 elseif #tArgs == 0 then
-    is_update = false 
-    --default_config_excavate_pro = true
+    is_install = true
+    is_update = false
+    is_deinstall = false
+
 else 
     buildView()
-    print("Invalid Arguments! Try Again.")
+    print("Invalid Arguments! Try Again.\n\nINSTALLATION:\npastebin run wHmS4pNS\nUPDATE:\npastebin run wHmS4pNS update\nREINSTALLATION:\npastebin run wHmS4pNS reinstall\nDEINSTALLATION:\npastebin run wHmS4pNS deinstall")
     return 
 end
 
--- Ask if state should be reset
-while clean_state == nil do 
-    buildView()
-    if not fs.exists("/ProTools/state") then 
-        clean_state = false 
-    else
-        clean_state = ensure("Should the state be deleted?")
+----- Delete Files -----
+if is_deinstall then 
+    for key, value in pairs(module_list) do
+        if removeFile(value.path.."/"..value.name, true) then 
+            remove_success = remove_success + 1
+        end
+        remove_total = remove_total + 1
+    end
+    for key, value in pairs(program_list) do
+        if removeFile(value.path.."/"..value.name, true) then 
+            remove_success = remove_success + 1
+        end
+        remove_total = remove_total + 1
+    end
+    for key, value in pairs(ufile_list) do
+        if removeFile(value.path.."/"..value.name, true) then 
+            remove_success = remove_success + 1
+        end
+        remove_total = remove_total + 1
     end
 end
 
--- Ask if log should be reset
-while clean_log == nil do 
-    buildView()
-    if not fs.exists("/ProTools/log") then 
-        clean_log = false 
-    else
-        clean_log = ensure("Should the log be deleted?")
+----- Modules ----- 
+if is_install then
+    for key, value in pairs(module_list) do
+        ensurePath(value.path)
+        if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
+            install_module_success = install_module_success + 1
+            download_success= download_success + 1
+        end 
+        install_module_total= install_module_total + 1
+        download_total= download_total + 1
     end
 end
 
--- Ask if config should be reset
-while default_config_excavate_pro == nil do 
-    buildView()
-    if not fs.exists("/ProTools/ExcavatePro/config") then 
-        default_config_excavate_pro = true 
-    else
-        default_config_excavate_pro = ensure("Should the configuration for ExcavatePro be reset to default?")
+----- Programs ----- 
+if is_install then
+    for key, value in pairs(program_list) do
+        ensurePath(value.path)
+        if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
+            install_program_success = install_program_success + 1
+            download_success = download_success + 1
+        end 
+        install_program_total= install_program_total + 1
+        download_total= download_total + 1
     end
 end
 
------ State -----
--- State Clean Up 
-if clean_state then 
-    -- Delete State File
-    if removeFile("/ProTools/state", clean_state) then 
-        remove_success = remove_success + 1
+----- Default Config ----- 
+if is_install and not is_update then
+    for key, value in pairs(default_config_list) do
+        ensurePath(value.path)
+        if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
+            download_config_success = download_config_success + 1
+            download_success = download_success + 1
+        end 
+        download_config_total= download_config_total + 1
+        download_total= download_total + 1
     end
-    remove_total = remove_total + 1
-end 
-
--- Log Clean Up 
-if clean_log then 
-    -- Delete State File
-    if removeFile("/ProTools/log", clean_log) then 
-        remove_success = remove_success + 1
-    end
-    remove_total = remove_total + 1
-end 
-
------ Config ----- 
--- ExcavatePro Config Update
-if default_config_excavate_pro then
-    if downloadFile("/ProTools/ExcavatePro/config", "W6KuhCeR", default_config_excavate_pro) then 
-        download_config_success = download_config_success + 1
-        download_success= download_success + 1
-    end 
-    download_config_total = download_config_total + 1
-    download_total= download_total + 1
-end
-
------ File System -----
--- Ensure Utilities path exist
-ensurePath(UTIL_PATH)
--- Ensure ExcavatePro Config path exist
-ensurePath("/ProTools/ExcavatePro")  
-
------ Install Modules ----- 
-for key, value in pairs(module_list) do
-    if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
-        install_module_success = install_module_success + 1
-        download_success= download_success + 1
-    end 
-    install_module_total= install_module_total + 1
-    download_total= download_total + 1
-end
-
------ Install Programs ----- 
-for key, value in pairs(program_list) do
-    if downloadFile(value.path.."/"..value.name, value.paste_code, is_update) then
-        install_program_success = install_program_success + 1
-        download_success = download_success + 1
-    end 
-    install_program_total= install_program_total + 1
-    download_total= download_total + 1
 end
 
 
