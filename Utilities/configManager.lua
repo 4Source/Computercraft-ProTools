@@ -20,7 +20,7 @@
 config_manager = {}
 
 ----------- Require -----------
-file_manager = file_manager or require("ProTools.Utilities.fileManager") 
+file_util = file_util or require("ProTools.Utilities.fileUtilities")
 
 ----------- Variables -----------
 local config_path, config_file_name = "/ProTools/ExcavatePro", "/config"
@@ -39,24 +39,24 @@ end
 
 -- 
 local function addCategory(category, configs)
-    local exists, data = file_manager.loadJSON(config_path..config_file_name)
+    local exists, data = file_util.loadJSON(config_path..config_file_name)
     if exists then 
         for i = 1, #data.CATEGORYS do
             if data.CATEGORYS[i].CATEGORY == category then 
                 data.CATEGORYS[i] = configs
-                file_manager.saveJSON(config_path..config_file_name, data)
+                file_util.saveJSON(config_path..config_file_name, data)
                 return 
             end
         end
         data.CATEGORYS = {}
         table.insert(data.CATEGORYS, configs)
-        file_manager.saveJSON(config_path..config_file_name, data)
+        file_util.saveJSON(config_path..config_file_name, data)
         return
     end 
 end 
 
 function config_manager.searchCategory(category)
-    local exists, data = file_manager.loadJSON(config_path..config_file_name)
+    local exists, data = file_util.loadJSON(config_path..config_file_name)
     if exists then 
         for i = 1, #data.CATEGORYS do
             if data.CATEGORYS[i].CATEGORY == category then 
