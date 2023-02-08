@@ -39,12 +39,20 @@ function pro_util.split(inputstr, sep)
 end 
 
 -- Returns formated sting with variable name, type and value 
-function pro_util.varToString(var, var_name)
-    local name = var_name or "" 
-    local type = type(var) or ""
-    local value = var or ""
+function pro_util.varToString(var, var_name, opts)
+    local v_name = var_name or "" 
+    local v_type = type(var) or ""
+    local v_value
 
-    return name.."("..type.."): "..value
+    if v_type == "boolean" then
+        v_value = textutils.serialise(var) or ""
+    elseif v_type == "table" then
+        v_value = textutils.serialise(var, opts) or ""
+    else
+        v_value = var or ""
+    end
+
+    return v_name.."("..v_type.."): "..v_value
 end 
 
 ----------- Run -----------
