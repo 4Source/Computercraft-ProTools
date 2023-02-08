@@ -81,7 +81,11 @@ end
 -- Log message to File
 local function logging(msg, caller, log_level, without_timestamp)
     -- exit if no message resived
-    if not msg or msg == "" then return end
+    if not msg or msg == "" then
+        msg = "Invalid Logging Input!"
+        caller = "log ("..caller..")"
+        log_level = "ERROR"
+    end
     
     -- log message 
     local log_msg = {}
