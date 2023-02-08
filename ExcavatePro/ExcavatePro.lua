@@ -5,7 +5,7 @@
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/UmUvXfqs
 -- Installation: Run installer below for full installation. 
--- Installer: pastebin run wHmS4pNS
+-- Installer: 'pastebin run wHmS4pNS'
 -- Usage: (program name) <program mode>
 -- Features: 
 
@@ -17,17 +17,15 @@
 -- Functions: Camelcase (functionExample)  
 
 ----------- Constants -----------
-HELP_PAGES = {'use', 'start', 'restart', 'continue', 'setup'}
--- Program Version (MAJOR.MINOR.PATCH-PRERELEASE)
-P_VERSION = "0.1.0"
-
-state_manager = state_manager or require("ProTools.Utilities.stateManager")
-log = log or require("ProTools.Utilities.logger")
-
 -- Program Version (MAJOR.MINOR.PATCH-PRERELEASE)
 P_VERSION = "0.1.0"
 -- Name of self
 local THIS = "ExcavatePro"
+
+state_manager = state_manager or require("ProTools.Utilities.stateManager")
+move_util = move_util or require("ProTools.Utilities.moveUtilities")
+log = log or require("ProTools.Utilities.logger")
+
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
@@ -41,9 +39,12 @@ if tonumber(tArgs[1]) < 1 then
 	return
 end
 
-state_manager.initState(P_VERSION)
-
-state_manager.setSizeX(tonumber( tArgs[1] ))
+-- Create new state and set size
+state_manager.createState()
+state_manager.state.size_x = tonumber(tArgs[1])
+state_manager.state.size_z = tonumber(tArgs[1])
+state_manager.saveState()
+state_manager.log()
 	
 local unloaded = 0
 local collected = 0
@@ -73,7 +74,8 @@ local function unload( _bKeepOneFuelStack )
 end
 
 local function returnSupplies()
-    state_manager.setProgress(state_manager.getCurrent())
+    -- state_manager.state.progress = state_manager.state.current
+	state_manager.saveState()
 
 
 	log.info("Returning to surface...", THIS)
@@ -91,7 +93,7 @@ local function returnSupplies()
 	end
 	
 	log.info("Resuming mining...", THIS)
-	goTo( state_manager.getProgress().pos_x, state_manager.getProgress().pos_y, state_manager.getProgress().pos_z, state_manager.getProgress().dir_x, state_manager.getProgress().dir_z )
+	goTo( state_manager.state.progress.pos_x, state_manager.state.progress.pos_y, state_manager.state.progress.pos_z, state_manager.state.progress.dir_x, state_manager.state.progress.dir_z )
 end
 
 local function collect()	
@@ -125,7 +127,7 @@ function refuel( ammount )
 		return true
 	end
 	
-	local needed = ammount or (state_manager.getCurrent().pos_x + state_manager.getCurrent().pos_z + state_manager.getCurrent().pos_y + 2)
+	local needed = ammount or (state_manager.state.current.pos_x + state_manager.state.current.pos_z + state_manager.state.current.pos_y + 2)
 	if turtle.getFuelLevel() < needed then
 		local fueled = false
 		for n=1,16 do
@@ -149,104 +151,10 @@ function refuel( ammount )
 	return true
 end
 
-local function tryForwards()
-	if not refuel() then
-		log.warn("Not enough Fuel", THIS)
-		returnSupplies()
-	end
-	
-	while not turtle.forward() do
-		if turtle.detect() then
-			if turtle.dig() then
-				if not collect() then
-					returnSupplies()
-				end
-			else
-				return false
-			end
-		elseif turtle.attack() then
-			if not collect() then
-				returnSupplies()
-			end
-		else
-			sleep( 0.5 )
-		end
-	end
-	
-    local temp_state = state_manager.getCurrent()
-    temp_state.pos_x = state_manager.getCurrent().pos_x + state_manager.getCurrent().dir_x
-    temp_state.pos_z = state_manager.getCurrent().pos_z + state_manager.getCurrent().dir_z
-    state_manager.setCurrent(temp_state)
-
-	-- state_manager.getCurrent().pos_x = state_manager.getCurrent().pos_x + state_manager.getCurrent().dir_x
-	-- state_manager.getCurrent().pos_z = state_manager.getCurrent().pos_z + state_manager.getCurrent().dir_z
-	return true
-end
-
-local function tryDown()
-	if not refuel() then
-		log.warn("Not enough Fuel", THIS)
-		returnSupplies()
-	end
-	
-	while not turtle.down() do
-		if turtle.detectDown() then
-			if turtle.digDown() then
-				if not collect() then
-					returnSupplies()
-				end
-			else
-				return false
-			end
-		elseif turtle.attackDown() then
-			if not collect() then
-				returnSupplies()
-			end
-		else
-			sleep( 0.5 )
-		end
-	end
-
-    local temp_state = state_manager.getCurrent()
-    temp_state.pos_y = state_manager.getCurrent().pos_y + 1
-    state_manager.setCurrent(temp_state)
-
-	-- state_manager.getCurrent().pos_y = state_manager.getCurrent().pos_y + 1
-
-	if math.fmod( state_manager.getCurrent().pos_y, 10 ) == 0 then
-		log.info("Descended "..state_manager.getCurrent().pos_y.." metres.", THIS)
-	end
-
-	return true
-end
-
-local function turnLeft()
-	turtle.turnLeft()
-    local temp_state = state_manager.getCurrent()
-    temp_state.dir_x, temp_state.dir_z = -state_manager.getCurrent().dir_z, state_manager.getCurrent().dir_x
-    state_manager.setCurrent(temp_state)
-
-	-- state_manager.getCurrent().dir_x, state_manager.getCurrent().dir_z = -state_manager.getCurrent().dir_z, state_manager.getCurrent().dir_x
-end
-
-local function turnRight()
-	turtle.turnRight()
-    turtle.turnLeft()
-    local temp_state = state_manager.getCurrent()
-    temp_state.dir_x, temp_state.dir_z = state_manager.getCurrent().dir_z, -state_manager.getCurrent().dir_x
-    state_manager.setCurrent(temp_state)
-
-	-- state_manager.getCurrent().dir_x, state_manager.getCurrent().dir_z = state_manager.getCurrent().dir_z, -state_manager.getCurrent().dir_x
-end
-
 function goTo( x, y, z, xd, zd )
-	while state_manager.getCurrent().pos_y > y do
-		if turtle.up() then
-            local temp_state = state_manager.getCurrent()
-            temp_state.pos_y = state_manager.getCurrent().pos_y - 1
-            state_manager.setCurrent(temp_state)
-
-			-- state_manager.getCurrent().pos_y = state_manager.getCurrent().pos_y - 1
+	while state_manager.state.current.pos_y > y do
+		if move_util.up() then
+			-- do nothing
 		elseif turtle.digUp() or turtle.attackUp() then
 			collect()
 		else
@@ -254,34 +162,26 @@ function goTo( x, y, z, xd, zd )
 		end
 	end
 
-	if state_manager.getCurrent().pos_x > x then
-		while state_manager.getCurrent().dir_x ~= -1 do
-			turnLeft()
+	if state_manager.state.current.pos_x > x then
+		while state_manager.state.current.dir_x ~= -1 do
+			move_util.turnLeft()
 		end
-		while state_manager.getCurrent().pos_x > x do
-			if turtle.forward() then
-                local temp_state = state_manager.getCurrent()
-                temp_state.pos_x = state_manager.getCurrent().pos_x - 1
-                state_manager.setCurrent(temp_state)
-
-				-- state_manager.getCurrent().pos_x = state_manager.getCurrent().pos_x - 1
+		while state_manager.state.current.pos_x > x do
+			if move_util.forward() then
+                -- do nothing
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
 				sleep( 0.5 )
 			end
 		end
-	elseif state_manager.getCurrent().pos_x < x then
-		while state_manager.getCurrent().dir_x ~= 1 do
-			turnLeft()
+	elseif state_manager.state.current.pos_x < x then
+		while state_manager.state.current.dir_x ~= 1 do
+			move_util.turnLeft()
 		end
-		while state_manager.getCurrent().pos_x < x do
-			if turtle.forward() then
-                local temp_state = state_manager.getCurrent()
-                temp_state.pos_x = state_manager.getCurrent().pos_x + 1
-                state_manager.setCurrent(temp_state)
-
-				-- state_manager.getCurrent().pos_x = state_manager.getCurrent().pos_x + 1
+		while state_manager.state.current.pos_x < x do
+			if move_util.forward() then
+                -- do nothing
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
@@ -290,34 +190,26 @@ function goTo( x, y, z, xd, zd )
 		end
 	end
 	
-	if state_manager.getCurrent().pos_z > z then
-		while state_manager.getCurrent().dir_z ~= -1 do
-			turnLeft()
+	if state_manager.state.current.pos_z > z then
+		while state_manager.state.current.dir_z ~= -1 do
+			move_util.turnLeft()
 		end
-		while state_manager.getCurrent().pos_z > z do
-			if turtle.forward() then
-                local temp_state = state_manager.getCurrent()
-                temp_state.pos_z = state_manager.getCurrent().pos_z - 1
-                state_manager.setCurrent(temp_state)
-
-				-- state_manager.getCurrent().pos_z = state_manager.getCurrent().pos_z - 1
+		while state_manager.state.current.pos_z > z do
+			if move_util.forward() then
+                -- do nothing
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
 				sleep( 0.5 )
 			end
 		end
-	elseif state_manager.getCurrent().pos_z < z then
-		while state_manager.getCurrent().dir_z ~= 1 do
-			turnLeft()
+	elseif state_manager.state.current.pos_z < z then
+		while state_manager.state.current.dir_z ~= 1 do
+			move_util.turnLeft()
 		end
-		while state_manager.getCurrent().pos_z < z do
-			if turtle.forward() then
-                local temp_state = state_manager.getCurrent()
-                temp_state.pos_z = state_manager.getCurrent().pos_z + 1
-                state_manager.setCurrent(temp_state)
-
-				-- state_manager.getCurrent().pos_z = state_manager.getCurrent().pos_z + 1
+		while state_manager.state.current.pos_z < z do
+			if move_util.forward() then
+                -- do nothing
 			elseif turtle.dig() or turtle.attack() then
 				collect()
 			else
@@ -326,13 +218,9 @@ function goTo( x, y, z, xd, zd )
 		end	
 	end
 	
-	while state_manager.getCurrent().pos_y < y do
-		if turtle.down() then
-            local temp_state = state_manager.getCurrent()
-            temp_state.pos_y = state_manager.getCurrent().pos_y + 1
-            state_manager.setCurrent(temp_state)
-
-			-- state_manager.getCurrent().pos_y = state_manager.getCurrent().pos_y + 1
+	while state_manager.state.current.pos_y < y do
+		if move_util.down() then
+            -- do nothing
 		elseif turtle.digDown() or turtle.attackDown() then
 			collect()
 		else
@@ -340,55 +228,88 @@ function goTo( x, y, z, xd, zd )
 		end
 	end
 	
-	while state_manager.getCurrent().dir_z ~= zd or state_manager.getCurrent().dir_x ~= xd do
-		turnLeft()
+	while state_manager.state.current.dir_z ~= zd or state_manager.state.current.dir_x ~= xd do
+		move_util.turnLeft()
 	end
 end
 
-if not refuel() then
-	log.warn("Out of Fuel", THIS)
-	return
-end
-
-local function excavate(size_x, size_z)
+local function excavate()
     log.info("Excavating...", THIS) 
     local done = false
     while not done do
-        log.verbose(textutils.serialize(done), THIS)
-	    for x=0, (size_x - 1) do
-		    for z=0, (size_z - 1) do
-			    if not tryForwards() then
+        log.debug(pro_util.varToString(done, "finished"), THIS)
+
+		while (state_manager.state.current.dir_x == 1 and state_manager.state.current.pos_x < (state_manager.state.size_x - 1)) or (state_manager.state.current.dir_x == -1 and state_manager.state.current.pos_x > 0) or (state_manager.state.current.dir_x == 0) do
+	    	state_manager.log()
+			while (state_manager.state.current.dir_z == 1 and state_manager.state.current.pos_z < (state_manager.state.size_z - 1)) or (state_manager.state.current.dir_z == -1 and state_manager.state.current.pos_z > 0) or (state_manager.state.current.dir_z == 0) do
+		    	state_manager.log()
+			    if not move_util.forward() then
+					log.warn("Can't move forward! 1", THIS)
+					-- state_manager.state.progress = state_manager.state.current
+					state_manager.saveState()
+					state_manager.log()
 				    return 
 			    end
 		    end
-		    if x < (size_x - 1) then
-			    if math.fmod(x, 2) == 0 then
-				    turnRight()
-				    if not tryForwards() then
+		    if state_manager.state.current.pos_x < (state_manager.state.size_x - 1) then
+				state_manager.log()
+			    if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
+					state_manager.log()
+				    move_util.turnRight()
+				    if not move_util.forward() then
+						log.warn("Can't move forward! 2", THIS)
+						-- state_manager.state.progress = state_manager.state.current
+						state_manager.saveState()
+						state_manager.log()
 				    	return 
 				    end
-				    turnRight()
+				    move_util.turnRight()
 			    else
-				    turnLeft()
-				    if not tryForwards() then
+				    move_util.turnLeft()
+				    if not move_util.forward() then
+						log.warn("Can't move forward! 3", THIS)
+						-- state_manager.state.progress = state_manager.state.current
+						state_manager.saveState()
+						state_manager.log()
 					    return 
 				    end
-				    turnLeft()
+				    move_util.turnLeft()
 			    end
 		    end
+
+			-- NOT WORKING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			log.debug("Check is end.", THIS)
+			if (state_manager.state.current.dir_x == 0 and state_manager.state.current.pos_x == (state_manager.state.size_x - 1)) or (state_manager.state.current.dir_x == 0 and state_manager.state.current.pos_x == 0) then 
+				log.debug("End of x", THIS)
+				if (state_manager.state.current.dir_z == 1 and state_manager.state.current.pos_z == (state_manager.state.size_z - 1)) or (state_manager.state.current.dir_z == -1 and state_manager.state.current.pos_z == 0) then 
+					log.debug("End of z", THIS)
+					break
+				end
+			end
 	    end
 
-        turnLeft()
-        turnLeft() 
+        move_util.turnLeft()
+        move_util.turnLeft() 
 	
-	    if not tryDown() then
+	    if not move_util.down() then
+			log.warn("Can't move down!", THIS)
+			-- state_manager.state.progress = state_manager.state.current
+			state_manager.saveState()
+			state_manager.log()
 		    return 
 	    end
     end 
 end 
 
+
+----------- Run -----------
+if not refuel() then
+	log.warn("Out of Fuel", THIS)
+	return
+end
+
 -- Excavateing 
-excavate(state_manager.getSizeX(), state_manager.getSizeX())
+excavate()
 
 log.info("Returning to surface...", THIS)
 
