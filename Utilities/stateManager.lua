@@ -21,6 +21,7 @@ state_manager = {}
 
 ----------- Require -----------
 file_util = file_util or require("ProTools.Utilities.fileUtilities")
+pro_util = pro_util or require("ProTools.Utilities.proUtilities")
 log = log or require("ProTools.Utilities.logger")
 
 ----------- Variables -----------
@@ -112,7 +113,7 @@ end
 
 -- Log the current State
 function state_manager.log(force_print, force_log)
-    log.debug(textutils.serialise(state_manager.state, {compact = true}), THIS, force_print, force_log)
+    log.debug(pro_util.varToString(state_manager.state, "state", {compact = true}), THIS, force_print, force_log)
 end
 
 ----------- Run -----------
