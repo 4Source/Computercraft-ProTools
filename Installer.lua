@@ -50,6 +50,11 @@ module_list = {
         name = "uiUtil",
         path = UTIL_PATH,
         paste_code = "iLvyjQYn"
+    },
+    {
+        name = "moveUtilities",
+        path = UTIL_PATH,
+        paste_code = "ck1uNLfV"
     }
 }
 

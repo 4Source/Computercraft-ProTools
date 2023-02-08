@@ -21,6 +21,7 @@ move_util = {}
  
 ----------- Require -----------
 state_manager = state_manager or require("ProTools.Utilities.stateManager")
+pro_util = pro_util or require("ProTools.Utilities.proUtilities")
 log = log or require("ProTools.Utilities.logger")
  
 ----------- Variables -----------
@@ -36,10 +37,10 @@ function move_util.turnLeft()
         log.verbose("Turtle failed to turn left.", THIS)
         return false 
     end
- 
-    state_manager.getState().current.dir_x, state_manager.getState().current.dir_z = -state_manager.getState().current.dir_z, state_manager.getState().current.dir_x
-    log.debug(pro_util.varToString(state_manager.getState().current.dir_x, "state.dir_x"), THIS)
-    log.debug(pro_util.varToString(state_manager.getState().current.dir_z, "state.dir_z"), THIS) 
+    
+    state_manager.state.current.dir_x, state_manager.state.current.dir_z = -state_manager.state.current.dir_z, state_manager.state.current.dir_x
+    log.debug(pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x"), THIS)
+    log.debug(pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), THIS) 
     state_manager.saveState()
 
     log.verbose("Turtle successfully turned left.", THIS)
@@ -54,10 +55,10 @@ function move_util.turnRight()
         log.verbose("Turtle failed to turn right.", THIS)
         return false
     end
- 
-    state_manager.getState().current.dir_x, state_manager.getState().current.dir_z = state_manager.getState().current.dir_z, -state_manager.getState().current.dir_x
-    log.debug(pro_util.varToString(state_manager.getState().current.dir_x, "state.dir_x"), THIS)
-    log.debug(pro_util.varToString(state_manager.getState().current.dir_z, "state.dir_z"), THIS)  
+    
+    state_manager.state.current.dir_x, state_manager.state.current.dir_z = state_manager.state.current.dir_z, -state_manager.state.current.dir_x
+    log.debug(pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x"), THIS)
+    log.debug(pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), THIS)  
     state_manager.saveState()
 
     log.verbose("Turtle successfully turned right.", THIS)
@@ -72,9 +73,9 @@ function move_util.up()
         log.verbose("Turtle failed to move up.", THIS)
         return false
     end
- 
-    state_manager.getState().current.pos_y = state_manager.getState().current.pos_y + 1
-    log.debug(pro_util.varToString(state_manager.getState().current.pos_y, "state.pos_y"), THIS) 
+    
+    state_manager.state.current.pos_y = state_manager.state.current.pos_y + 1
+    log.debug(pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"), THIS) 
     state_manager.saveState()
 
     log.verbose("Turtle successfully moved up.", THIS)
@@ -89,9 +90,9 @@ function move_util.down()
         log.verbose("Turtle failed to move down.", THIS)
         return false
     end
- 
-    state_manager.getState().current.pos_y = state_manager.getState().current.pos_y - 1
-    log.debug(pro_util.varToString(state_manager.getState().current.pos_y, "state.pos_y"), THIS)
+    
+    state_manager.state.current.pos_y = state_manager.state.current.pos_y - 1
+    log.debug(pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"), THIS)
     state_manager.saveState()
 
     log.verbose("Turtle successfully moved down.", THIS)
@@ -106,11 +107,11 @@ function move_util.forward()
         log.verbose("Turtle failed to move forward.", THIS)
         return false
     end
- 
-    state_manager.getState().current.pos_x = state_manager.getState().current.pos_x + state_manager.getState().current.dir_x
-    state_manager.getState().current.pos_z = state_manager.getState().current.pos_z + state_manager.getState().current.dir_z
-    log.debug(pro_util.varToString(state_manager.getState().current.pos_x, "state.pos_x"), THIS) 
-    log.debug(pro_util.varToString(state_manager.getState().current.pos_z, "state.pos_z"), THIS) 
+    
+    state_manager.state.current.pos_x = state_manager.state.current.pos_x + state_manager.state.current.dir_x
+    state_manager.state.current.pos_z = state_manager.state.current.pos_z + state_manager.state.current.dir_z
+    log.debug(pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), THIS) 
+    log.debug(pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"), THIS) 
     state_manager.saveState()
 
     log.verbose("Turtle successfully moved forward.", THIS)
