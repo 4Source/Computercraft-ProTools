@@ -30,8 +30,14 @@ local THIS = "mine_util"
 ----- Digging Functions -----
 -- Return false if there is no possibly way to move 
 function mine_util.forward()
-    local done_turtle_forward = turtle.dig()
-    
+    local done_turtle_forward
+    local detect_turtle_forward = turtle.detect() 
+    if detect_turtle_forward then 
+        done_turtle_forward = turtle.dig()
+    else
+        done_turtle_forward = true
+    end
+
     if not done_turtle_forward then 
         log.verbose("Turtle failed to dig forward.", THIS)
         sleep( 0.5 )
@@ -65,7 +71,13 @@ end
  
 -- Return false if there is no possibly way to move 
 function mine_util.down()
-    local done_turtle_down = turtle.digDown()
+    local done_turtle_down
+    local detect_turtle_down = turtle.detectDown() 
+    if detect_turtle_down then 
+        done_turtle_down = turtle.digDown()
+    else
+        done_turtle_down = true
+    end
     
     if not done_turtle_down then 
         log.verbose("Turtle failed to dig down.", THIS)
@@ -84,7 +96,13 @@ end
 
 -- Return false if there is no possibly way to move 
 function mine_util.up()
-    local done_turtle_up = turtle.digUp()
+    local done_turtle_up
+    local detect_turtle_up = turtle.detectUp() 
+    if detect_turtle_up then 
+        done_turtle_up = turtle.digUp()
+    else
+        done_turtle_up = true
+    end
     
     if not done_turtle_up then 
         log.verbose("Turtle failed to dig up.", THIS)
