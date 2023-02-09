@@ -122,6 +122,7 @@ function move_util.forward()
         log.debug(pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"), THIS) 
     else
         log.error("Invalid movement state by moving forward. Out of sync!", THIS)
+        state_manager.error = true
         return false
     end
     state_manager.saveState()

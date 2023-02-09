@@ -5,14 +5,8 @@
     "size_z": 0,
     "size_y": 0,
     "finished": false,
+    "error": false,
     "current": {
-        "pos_x": 0,
-        "pos_z": 0,
-        "pos_y": 0,
-        "dir_x": 0,
-        "dir_z": 1
-    },
-    "target": {
         "pos_x": 0,
         "pos_z": 0,
         "pos_y": 0,
