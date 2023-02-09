@@ -382,7 +382,47 @@ end
  
 -- Restart Function
 function restart()
+   	-- Load state 
+	state_manager.loadState()
+
+	-- Check Verion/Program compatibility
+
+	-- Check the State
+	if state_manager.state.finished then
+		log.info("Program already finished.", THIS)
+		return
+	end
+	if state_manager.state.error then
+		log.fatal("Program stoppt with an error!", THIS)
+		return
+	end
+	state_manager.resetCurrent()
+	state_manager.saveState()
+	state_manager.log()
    	
+    -- Excavate
+    if not refuel() then
+		log.warn("Out of Fuel", THIS)
+		return
+	end
+
+	-- Return to last progress
+	log.verbose("Resuming mining...", THIS, true)
+	goTo( state_manager.state.progress.pos_x, state_manager.state.progress.pos_y, state_manager.state.progress.pos_z, state_manager.state.progress.dir_x, state_manager.state.progress.dir_z )
+	-- Excavateing 
+	log.verbose("Excavating...", THIS, true) 
+	excavate()
+	state_manager.log()
+
+	log.verbose("Returning to surface...", THIS, true)
+
+	-- Return to where we started
+	goTo( 0,0,0,0,-1 )
+	unload( false )
+	goTo( 0,0,0,0,1 )
+	state_manager.log()
+
+	log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
 end
  
 -- Continue Function

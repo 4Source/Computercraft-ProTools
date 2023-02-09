@@ -118,6 +118,15 @@ function state_manager.setProgress()
     end
 end
 
+-- Set current state to progress state
+function state_manager.resetCurrent()
+    state_manager.state.current.pos_x = 0
+    state_manager.state.current.pos_z = 0
+    state_manager.state.current.pos_y = 0
+    state_manager.state.current.dir_x = 0
+    state_manager.state.current.dir_z = 1
+end
+
 -- Log the current State
 function state_manager.log(force_print, force_log)
     log.debug(pro_util.varToString(state_manager.state, "state", {compact = true}), THIS, force_print, force_log)
