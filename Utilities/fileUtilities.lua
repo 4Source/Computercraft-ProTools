@@ -109,7 +109,7 @@ function file_util.removeFile(path, force, not_clean_empty)
         end
         if sure then 
             fs.delete(path)
-            log.info("Delete "..path.." Successful.", THIS)
+            log.debug("Delete "..path.." Successful.", THIS)
 
             if not not_clean_empty then
                 local parant_dir = fs.getDir(path)
@@ -147,14 +147,14 @@ function file_util.downloadFile(path, pasteCode, force)
         if sure then 
             fs.delete(path)
             success = shell.run("pastebin", "get", pasteCode, path)
-            log.info("Update "..path.." Successful.", THIS)
+            log.debug("Update "..path.." Successful.", THIS)
         else 
             success = false
             log.info("Update "..path.." canceled...", THIS)
         end
     else 
         success = shell.run("pastebin", "get", pasteCode, path)
-        log.info("Download "..path.." Successful.", THIS)
+        log.debug("Download "..path.." Successful.", THIS)
     end
     return success
 end 
