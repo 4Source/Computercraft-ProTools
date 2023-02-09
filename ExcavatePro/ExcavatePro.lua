@@ -220,8 +220,7 @@ function goTo( x, y, z, xd, zd )
 end
 
 local function excavate()
-    log.info("Excavating...", THIS) 
-    while not state_manager.state.finished do
+    while not state_manager.state.finished and not state_manager.state.error do
         log.debug(pro_util.varToString(state_manager.state.finished, "state.finished"), THIS)
 		while (state_manager.state.current.pos_x + state_manager.state.current.dir_x) <= (state_manager.state.size_x - 1) 
 		and (state_manager.state.current.pos_x + state_manager.state.current.dir_x) >= 0 do
@@ -231,6 +230,7 @@ local function excavate()
 				log.verbose("Do Z Row.", THIS, false, true)
 				if not move_util.forward() then
 					log.warn("Can't move forward!", THIS)
+					state_manager.state.error = true
 					state_manager.setProgress()
 					state_manager.saveState()
 				    return 
@@ -249,6 +249,7 @@ local function excavate()
 				if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
+						state_manager.state.error = true
 						state_manager.setProgress()
 						state_manager.saveState()
 						return 
@@ -257,6 +258,7 @@ local function excavate()
 				else
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
+						state_manager.state.error = true
 						state_manager.setProgress()
 						state_manager.saveState()
 						return 
@@ -276,6 +278,11 @@ local function excavate()
 		or state_manager.state.current.pos_y > (state_manager.state.size_y + 1) then
 			if not move_util.down() then
 				log.warn("Can't move down!", THIS)
+				if state_manager.state.size_y == true then 
+					state_manager.state.finished = true
+				else
+					state_manager.state.error = true
+				end
 				state_manager.setProgress()
 				state_manager.saveState()
 				
@@ -293,12 +300,12 @@ end
 -- Start mode
 function start()
 	log.init()
-    -- Get Excavate Size from User input
-    local validArgs = false
+    
 	local size_x 
 	local size_z 
 	local size_y 
 
+	-- Get Excavate Size Z from User input
 	while not size_z or size_z <= 0 do 
 		-- Request Z <size> (<offset>)
 		tArgs = ui_util.requestInput("Excavate Z Size: ", "The Number of Blocks in front of the Turtle, including the Block where the Turtle stands.")
@@ -308,6 +315,7 @@ function start()
 		end
 	end
 
+	-- Get Excavate Size X from User input
 	while not size_x or size_x <= 0 do 
 		-- Request X (<size>) (<offset>)
         tArgs = ui_util.requestInput("Excavate X Size: ", "(optional) The Number of Blocks to the right of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <Z Size> would be used.")
@@ -318,7 +326,8 @@ function start()
             size_x = size_z
         end
 	end
- 
+	
+	-- Get Excavate Size Y from User input
 	while not size_y or (type(size_y) == "number" and size_y > 0) do
 		print("check y input")
 		-- Request Y (<size>) (<offset>)
@@ -341,49 +350,44 @@ function start()
 	state_manager.saveState()
 	state_manager.log()
     
+	if state_manager.state.finished then
+		log.info("Program already finished.")
+		return
+	end
+	if state_manager.state.error then
+		log.fatal("Program has an error!")
+		return
+	end
     -- Excavate
-    if not state_manager.state.finished then        
-		if not refuel() then
-			log.warn("Out of Fuel", THIS)
-			return
-		end
+    if not refuel() then
+		log.warn("Out of Fuel", THIS)
+		return
+	end
 
-		-- Excavateing 
-		excavate()
-		state_manager.log()
+	-- Excavateing 
+	log.verbose("Excavating...", THIS, true) 
+	excavate()
+	state_manager.log()
 
-		log.verbose("Returning to surface...", THIS, true)
+	log.verbose("Returning to surface...", THIS, true)
 
-		-- Return to where we started
-		goTo( 0,0,0,0,-1 )
-		unload( false )
-		goTo( 0,0,0,0,1 )
-		state_manager.log()
+	-- Return to where we started
+	goTo( 0,0,0,0,-1 )
+	unload( false )
+	goTo( 0,0,0,0,1 )
+	state_manager.log()
 
-		log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
-    end
+	log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
 end
  
 -- Restart Function
 function restart()
-    -- Reset Turtle position in state values 
- 
- 
-    -- Excavate
-    if not state.finished then 
-        state.finished = excavate()
-        saveState()
-    end 
- 
+   	
 end
  
 -- Continue Function
 function continue()
-    -- Excavate
-    if not state.finished then 
-        state.finished = excavate()
-        saveState()
-    end 
+   
 end
 
 ----------- Run -----------
