@@ -156,8 +156,8 @@ function goTo( x, y, z, xd, zd )
 	while state_manager.state.current.pos_y > y do
 		if move_util.up() then
 			-- do nothing
-		elseif turtle.digUp() or turtle.attackUp() then
-			collect()
+		-- elseif turtle.digUp() or turtle.attackUp() then
+		-- 	collect()
 		else
 			sleep( 0.5 )
 		end
@@ -170,8 +170,8 @@ function goTo( x, y, z, xd, zd )
 		while state_manager.state.current.pos_x > x do
 			if move_util.forward() then
                 -- do nothing
-			elseif turtle.dig() or turtle.attack() then
-				collect()
+			-- elseif turtle.dig() or turtle.attack() then
+			-- 	collect()
 			else
 				sleep( 0.5 )
 			end
@@ -183,8 +183,8 @@ function goTo( x, y, z, xd, zd )
 		while state_manager.state.current.pos_x < x do
 			if move_util.forward() then
                 -- do nothing
-			elseif turtle.dig() or turtle.attack() then
-				collect()
+			-- elseif turtle.dig() or turtle.attack() then
+			-- 	collect()
 			else
 				sleep( 0.5 )
 			end
@@ -198,8 +198,8 @@ function goTo( x, y, z, xd, zd )
 		while state_manager.state.current.pos_z > z do
 			if move_util.forward() then
                 -- do nothing
-			elseif turtle.dig() or turtle.attack() then
-				collect()
+			-- elseif turtle.dig() or turtle.attack() then
+			-- 	collect()
 			else
 				sleep( 0.5 )
 			end
@@ -211,8 +211,8 @@ function goTo( x, y, z, xd, zd )
 		while state_manager.state.current.pos_z < z do
 			if move_util.forward() then
                 -- do nothing
-			elseif turtle.dig() or turtle.attack() then
-				collect()
+			-- elseif turtle.dig() or turtle.attack() then
+			-- 	collect()
 			else
 				sleep( 0.5 )
 			end
@@ -222,8 +222,8 @@ function goTo( x, y, z, xd, zd )
 	while state_manager.state.current.pos_y < y do
 		if move_util.down() then
             -- do nothing
-		elseif turtle.digDown() or turtle.attackDown() then
-			collect()
+		-- elseif turtle.digDown() or turtle.attackDown() then
+		-- 	collect()
 		else
 			sleep( 0.5 )
 		end
@@ -239,29 +239,24 @@ local function excavate()
     local done = false
     while not done do
         log.debug(pro_util.varToString(done, "finished"), THIS)
-
 		while (state_manager.state.current.dir_x == 1 and state_manager.state.current.pos_x < (state_manager.state.size_x - 1)) or (state_manager.state.current.dir_x == -1 and state_manager.state.current.pos_x > 0) or (state_manager.state.current.dir_x == 0) do
-	    	state_manager.log()
+			log.verbose("Do X Row.", THIS, false, true)
 			while (state_manager.state.current.dir_z == 1 and state_manager.state.current.pos_z < (state_manager.state.size_z - 1)) or (state_manager.state.current.dir_z == -1 and state_manager.state.current.pos_z > 0) or (state_manager.state.current.dir_z == 0) do
-		    	state_manager.log()
-			    if not move_util.forward() then
+			    log.verbose("Do Z Row.", THIS, false, true)
+				if not move_util.forward() then
 					log.warn("Can't move forward! 1", THIS)
 					-- state_manager.state.progress = state_manager.state.current
 					state_manager.saveState()
-					state_manager.log()
 				    return 
 			    end
 		    end
 		    if state_manager.state.current.pos_x < (state_manager.state.size_x - 1) then
-				state_manager.log()
 			    if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
-					state_manager.log()
 				    move_util.turnRight()
 				    if not move_util.forward() then
 						log.warn("Can't move forward! 2", THIS)
 						-- state_manager.state.progress = state_manager.state.current
 						state_manager.saveState()
-						state_manager.log()
 				    	return 
 				    end
 				    move_util.turnRight()
@@ -271,22 +266,11 @@ local function excavate()
 						log.warn("Can't move forward! 3", THIS)
 						-- state_manager.state.progress = state_manager.state.current
 						state_manager.saveState()
-						state_manager.log()
 					    return 
 				    end
 				    move_util.turnLeft()
 			    end
 		    end
-
-			-- NOT WORKING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			log.debug("Check is end.", THIS)
-			if (state_manager.state.current.dir_x == 0 and state_manager.state.current.pos_x == (state_manager.state.size_x - 1)) or (state_manager.state.current.dir_x == 0 and state_manager.state.current.pos_x == 0) then 
-				log.debug("End of x", THIS)
-				if (state_manager.state.current.dir_z == 1 and state_manager.state.current.pos_z == (state_manager.state.size_z - 1)) or (state_manager.state.current.dir_z == -1 and state_manager.state.current.pos_z == 0) then 
-					log.debug("End of z", THIS)
-					break
-				end
-			end
 	    end
 
         move_util.turnLeft()
@@ -296,7 +280,7 @@ local function excavate()
 			log.warn("Can't move down!", THIS)
 			-- state_manager.state.progress = state_manager.state.current
 			state_manager.saveState()
-			state_manager.log()
+			
 		    return 
 	    end
     end 
