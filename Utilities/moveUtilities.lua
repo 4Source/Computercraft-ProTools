@@ -113,11 +113,11 @@ function move_util.forward()
         return false
     end
     
-    if (state_manager.state.current.dir_x > 0 or state_manager.state.current.dir_x < 0) and state_manager.state.current.dir_z == 0 then
+    if (state_manager.state.current.dir_x == 1 or state_manager.state.current.dir_x == -1) and state_manager.state.current.dir_z == 0 then
         state_manager.state.current.pos_x = state_manager.state.current.pos_x + state_manager.state.current.dir_x
         log.debug(pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), THIS) 
 
-    elseif(state_manager.state.current.dir_z > 0 or state_manager.state.current.dir_z < 0) and state_manager.state.current.dir_x == 0 then
+    elseif(state_manager.state.current.dir_z == 1 or state_manager.state.current.dir_z == -1) and state_manager.state.current.dir_x == 0 then
         state_manager.state.current.pos_z = state_manager.state.current.pos_z + state_manager.state.current.dir_z
         log.debug(pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"), THIS) 
     else
