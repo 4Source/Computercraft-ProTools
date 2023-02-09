@@ -153,7 +153,7 @@ function refuel( ammount )
 end
 
 function goTo( x, y, z, xd, zd )
-	while state_manager.state.current.pos_y > y do
+	while state_manager.state.current.pos_y < y do
 		if move_util.up() then
 			-- do nothing
 		-- elseif turtle.digUp() or turtle.attackUp() then
@@ -219,7 +219,7 @@ function goTo( x, y, z, xd, zd )
 		end	
 	end
 	
-	while state_manager.state.current.pos_y < y do
+	while state_manager.state.current.pos_y > y do
 		if move_util.down() then
             -- do nothing
 		-- elseif turtle.digDown() or turtle.attackDown() then
@@ -239,42 +239,54 @@ local function excavate()
     local done = false
     while not done do
         log.debug(pro_util.varToString(done, "finished"), THIS)
-		while (state_manager.state.current.dir_x == 1 and state_manager.state.current.pos_x < (state_manager.state.size_x - 1)) or (state_manager.state.current.dir_x == -1 and state_manager.state.current.pos_x > 0) or (state_manager.state.current.dir_x == 0) do
+		while (state_manager.state.current.pos_x + state_manager.state.current.dir_x) <= (state_manager.state.size_x - 1) 
+		and (state_manager.state.current.pos_x + state_manager.state.current.dir_x) >= 0 do
 			log.verbose("Do X Row.", THIS, false, true)
-			while (state_manager.state.current.dir_z == 1 and state_manager.state.current.pos_z < (state_manager.state.size_z - 1)) or (state_manager.state.current.dir_z == -1 and state_manager.state.current.pos_z > 0) or (state_manager.state.current.dir_z == 0) do
-			    log.verbose("Do Z Row.", THIS, false, true)
+			while (state_manager.state.current.pos_z + state_manager.state.current.dir_z) <= (state_manager.state.size_z - 1) 
+			and (state_manager.state.current.pos_z + state_manager.state.current.dir_z) >= 0 do
+				log.verbose("Do Z Row.", THIS, false, true)
 				if not move_util.forward() then
-					log.warn("Can't move forward! 1", THIS)
+					log.warn("Can't move forward!", THIS)
 					-- state_manager.state.progress = state_manager.state.current
 					state_manager.saveState()
 				    return 
 			    end
-		    end
-		    if state_manager.state.current.pos_x < (state_manager.state.size_x - 1) then
-			    if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
-				    move_util.turnRight()
-				    if not move_util.forward() then
-						log.warn("Can't move forward! 2", THIS)
-						-- state_manager.state.progress = state_manager.state.current
-						state_manager.saveState()
-				    	return 
-				    end
-				    move_util.turnRight()
-			    else
-				    move_util.turnLeft()
-				    if not move_util.forward() then
-						log.warn("Can't move forward! 3", THIS)
-						-- state_manager.state.progress = state_manager.state.current
-						state_manager.saveState()
-					    return 
-				    end
-				    move_util.turnLeft()
-			    end
-		    end
-	    end
+			end
 
-        move_util.turnLeft()
-        move_util.turnLeft() 
+			if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
+				move_util.turnRight()
+			else
+				move_util.turnLeft()
+			end
+
+			if (state_manager.state.current.pos_x + state_manager.state.current.dir_x) <= (state_manager.state.size_x - 1) 
+			and (state_manager.state.current.pos_x + state_manager.state.current.dir_x) >= 0 then
+				log.verbose("Change X Row.", THIS, false, true)
+				if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
+					if not move_util.forward() then
+						log.warn("Can't move forward!", THIS)
+						-- state_manager.state.progress = state_manager.state.current
+						state_manager.saveState()
+						return 
+					end
+					move_util.turnRight()
+				else
+					if not move_util.forward() then
+						log.warn("Can't move forward!", THIS)
+						-- state_manager.state.progress = state_manager.state.current
+						state_manager.saveState()
+						return 
+					end
+					move_util.turnLeft()
+				end
+			end
+		end
+
+        if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
+			move_util.turnRight()
+		else
+			move_util.turnLeft()
+		end
 	
 	    if not move_util.down() then
 			log.warn("Can't move down!", THIS)
