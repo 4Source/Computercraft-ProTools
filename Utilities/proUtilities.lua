@@ -48,6 +48,8 @@ function pro_util.varToString(var, var_name, opts)
         v_value = textutils.serialise(var) or ""
     elseif v_type == "table" then
         v_value = textutils.serialise(var, opts) or ""
+    elseif v_type == "nil" then
+        v_value = textutils.serialise(var) or ""
     else
         v_value = var or ""
     end
