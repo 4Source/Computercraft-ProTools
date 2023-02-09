@@ -27,116 +27,77 @@ log = log or require("ProTools.Utilities.logger")
 local THIS = "mine_util" 
 
 ----------- Functions -----------
------ Move Functions -----
--- Turtle turn left
-function mine_util.turnLeft()
-    local done_turtle_turn_left = turtle.turnLeft()
-    -- if not done_turtle_turn_left then return false, "Turtle failed to turn left." end
-    if not done_turtle_turn_left then 
-        print("Turtle failed to turn left.")
-        return false, "Turtle failed to turn left."
-    end
- 
-    state.dir_x, state.dir_z = -state.dir_z, state.dir_x
-    saveState()
-    print("turnLeft")
-    return true
-end
- 
--- Turtle turn rigth
-function mine_util.turnRight()
-    local done_turtle_turn_right = turtle.turnRight()
-    -- if not done_turtle_turn_right then return false, "Turtle failed to turn right." end
-    if not done_turtle_turn_right then 
-        print("Turtle failed to turn right.")
-        return false, "Turtle failed to turn right."
-    end
- 
-    state.dir_x, state.dir_z = state.dir_z, -state.dir_x
-    saveState()
-    print("turnRight")
-    return true
-end 
- 
--- Turtle move up. Returns false if failed.
-function mine_util.up()
-    local done_turtle_up = turtle.up()
-    -- if not done_turtle_up then return false, "Turtle failed to move up." end
-    if not done_turtle_up then
-        print("Turtle failed to move up.")
-        return false, "Turtle failed to move up."
-    end
- 
-    state.pos_y = state.pos_y + 1
-    saveState()
-    print("up")
-    return true
-end
- 
--- Turtle move down. Returns false if failed.  
-function mine_util.down()
-    local done_turtle_down = turtle.down()
-    -- if not done_turtle_down then return false, "Turtle failed to move down." end
-    if not done_turtle_down then 
-        print("Turtle failed to move down.")
-        return false, "Turtle failed to move down."
-    end
- 
-    state.pos_y = state.pos_y - 1
-    saveState()
-    print("down")
-    return true
-end
- 
--- Turtle move forward. Returns false if failed.  
-function mine_util.forward()
-    local done_turtle_forward = turtle.forward()
-    -- if not done_turtle_forward then return false, "Turtle failed to move forward." end
-    if not done_turtle_forward then 
-        print("Turtle failed to move forward.")
-        return false, "Turtle failed to move forward."
-    end
- 
-    state.pos_x = state.pos_x + state.dir_x
-    state.pos_z = state.pos_z + state.dir_z
-    saveState()
-    print("forward")
-    return true
-end  
-
 ----- Digging Functions -----
 -- Return false if there is no possibly way to move 
-function mine_util.digForward()
-    print("digForward")
-    turtle.dig()
+function mine_util.forward()
+    local done_turtle_forward = turtle.dig()
     
-    local done_forward, msg = forward()
-    if not done_forward then return false, msg end
+    if not done_turtle_forward then 
+        log.verbose("Turtle failed to dig forward.", THIS)
+        sleep( 0.5 )
+        return false
+    end
     
-    state.last_x = state.pos_x 
-    state.last_z = state.pos_z 
-    saveState()
- 
-    -- turtle.digUp()
-    -- turtle.digDown()
- 
-    -- checkItems()
-    print("end digForward")
+    if (state_manager.state.progress.dir_x == 1 or state_manager.state.progress.dir_x == -1) 
+    and state_manager.state.progress.dir_z == 0 then
+        state_manager.setProgress()
+        state_manager.state.progress.pos_x = state_manager.state.progress.pos_x + state_manager.state.progress.dir_x
+        state_manager.saveState()
+        log.debug(pro_util.varToString(state_manager.state.progress.pos_x, "state.progress.pos_x"), THIS) 
+
+    elseif(state_manager.state.progress.dir_z == 1 or state_manager.state.progress.dir_z == -1) 
+    and state_manager.state.progress.dir_x == 0 then
+        state_manager.setProgress()
+        state_manager.state.progress.pos_z = state_manager.state.progress.pos_z + state_manager.state.progress.dir_z
+        state_manager.saveState()
+        log.debug(pro_util.varToString(state_manager.state.progress.pos_z, "state.progress.pos_z"), THIS) 
+    else
+        log.error("Invalid digging state by dig forward. Out of sync!", THIS)
+        state_manager.state.error = true
+        state_manager.saveState()
+        return false
+    end
+    
+
+    log.verbose("Turtle successfully dig forward.", THIS)
     return true
 end 
  
 -- Return false if there is no possibly way to move 
-function mine_util.digDown()
-    print("digDown")
-    turtle.digDown()
+function mine_util.down()
+    local done_turtle_down = turtle.digDown()
     
-    local done_down, msg = down()
-    if not done_down then return false, msg end
+    if not done_turtle_down then 
+        log.verbose("Turtle failed to dig down.", THIS)
+        sleep( 0.5 )
+        return false
+    end
     
-    state.last_y = state.pos_y 
-    saveState()
- 
-    print("end digDown")
+    state_manager.setProgress()
+    state_manager.state.progress.pos_y = state_manager.state.progress.pos_y - 1
+    state_manager.saveState()
+    log.debug(pro_util.varToString(state_manager.state.progress.pos_y, "state.progress.pos_y"), THIS)
+
+    log.verbose("Turtle successfully dig down.", THIS)
+    return true
+end 
+
+-- Return false if there is no possibly way to move 
+function mine_util.up()
+    local done_turtle_up = turtle.digUp()
+    
+    if not done_turtle_up then 
+        log.verbose("Turtle failed to dig up.", THIS)
+        sleep( 0.5 )
+        return false
+    end
+    
+    state_manager.setProgress()
+    state_manager.state.progress.pos_y = state_manager.state.progress.pos_y + 1
+    state_manager.saveState()
+    log.debug(pro_util.varToString(state_manager.state.progress.pos_y, "state.progress.pos_y"), THIS)
+
+    log.verbose("Turtle successfully dig up.", THIS)
     return true
 end  
 

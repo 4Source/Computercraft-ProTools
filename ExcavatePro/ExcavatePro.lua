@@ -24,6 +24,7 @@ local THIS = "ExcavatePro"
 
 state_manager = state_manager or require("ProTools.Utilities.stateManager")
 move_util = move_util or require("ProTools.Utilities.moveUtilities")
+mine_util = mine_util or require("ProTools.Utilities.mineUtilities")
 ui_util = ui_util or require("ProTools.Utilities.uiUtil")
 log = log or require("ProTools.Utilities.logger")
 	
@@ -228,6 +229,13 @@ local function excavate()
 			while (state_manager.state.current.pos_z + state_manager.state.current.dir_z) <= (state_manager.state.size_z - 1) 
 			and (state_manager.state.current.pos_z + state_manager.state.current.dir_z) >= 0 do
 				log.verbose("Do Z Row.", THIS, false, true)
+				if not mine_util.forward() then 
+					log.warn("Can't dig forward!", THIS)
+					state_manager.state.error = true
+					state_manager.setProgress()
+					state_manager.saveState()
+				    return 
+				end
 				if not move_util.forward() then
 					log.warn("Can't move forward!", THIS)
 					state_manager.state.error = true
@@ -235,9 +243,6 @@ local function excavate()
 					state_manager.saveState()
 				    return 
 			    end
-				-- TEMP SHOULD BE IN MINE UTIL
-				state_manager.setProgress()
-				state_manager.saveState()
 			end
 
 			if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
@@ -250,6 +255,13 @@ local function excavate()
 			and (state_manager.state.current.pos_x + state_manager.state.current.dir_x) >= 0 then
 				log.verbose("Change X Row.", THIS, false, true)
 				if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
+					if not mine_util.forward() then 
+						log.warn("Can't dig forward!", THIS)
+						state_manager.state.error = true
+						state_manager.setProgress()
+						state_manager.saveState()
+						return 
+					end
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
 						state_manager.state.error = true
@@ -258,10 +270,14 @@ local function excavate()
 						return 
 					end
 					move_util.turnRight()
-					-- TEMP SHOULD BE IN MINE UTIL
-					state_manager.setProgress()
-					state_manager.saveState()
 				else
+					if not mine_util.forward() then 
+						log.warn("Can't dig forward!", THIS)
+						state_manager.state.error = true
+						state_manager.setProgress()
+						state_manager.saveState()
+						return 
+					end
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
 						state_manager.state.error = true
@@ -270,9 +286,6 @@ local function excavate()
 						return 
 					end
 					move_util.turnLeft()
-					-- TEMP SHOULD BE IN MINE UTIL
-					state_manager.setProgress()
-					state_manager.saveState()
 				end
 			end
 		end
@@ -285,8 +298,8 @@ local function excavate()
 
 		if state_manager.state.size_y == true
 		or state_manager.state.current.pos_y > (state_manager.state.size_y + 1) then
-			if not move_util.down() then
-				log.warn("Can't move down!", THIS)
+			if not mine_util.down() then 
+				log.warn("Can't dig down!", THIS)
 				if state_manager.state.size_y == true then 
 					state_manager.state.finished = true
 				else
@@ -294,12 +307,16 @@ local function excavate()
 				end
 				state_manager.setProgress()
 				state_manager.saveState()
+				return 
+			end
+			if not move_util.down() then
+				log.warn("Can't move down!", THIS)
+				state_manager.state.error = true
+				state_manager.setProgress()
+				state_manager.saveState()
 				
 				return 
 			end
-			-- TEMP SHOULD BE IN MINE UTIL
-			state_manager.setProgress()
-			state_manager.saveState()
 		else
 			state_manager.setProgress()
 			state_manager.state.finished = true
