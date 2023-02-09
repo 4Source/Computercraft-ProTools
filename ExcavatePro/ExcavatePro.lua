@@ -235,6 +235,9 @@ local function excavate()
 					state_manager.saveState()
 				    return 
 			    end
+				-- TEMP SHOULD BE IN MINE UTIL
+				state_manager.setProgress()
+				state_manager.saveState()
 			end
 
 			if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
@@ -255,6 +258,9 @@ local function excavate()
 						return 
 					end
 					move_util.turnRight()
+					-- TEMP SHOULD BE IN MINE UTIL
+					state_manager.setProgress()
+					state_manager.saveState()
 				else
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
@@ -264,6 +270,9 @@ local function excavate()
 						return 
 					end
 					move_util.turnLeft()
+					-- TEMP SHOULD BE IN MINE UTIL
+					state_manager.setProgress()
+					state_manager.saveState()
 				end
 			end
 		end
@@ -288,6 +297,9 @@ local function excavate()
 				
 				return 
 			end
+			-- TEMP SHOULD BE IN MINE UTIL
+			state_manager.setProgress()
+			state_manager.saveState()
 		else
 			state_manager.setProgress()
 			state_manager.state.finished = true
@@ -399,7 +411,7 @@ function restart()
 	state_manager.resetCurrent()
 	state_manager.saveState()
 	state_manager.log()
-   	
+    
     -- Excavate
     if not refuel() then
 		log.warn("Out of Fuel", THIS)
@@ -427,7 +439,46 @@ end
  
 -- Continue Function
 function continue()
-   
+    -- Load state 
+	state_manager.loadState()
+
+	-- Check Verion/Program compatibility
+
+	-- Check the State
+	if state_manager.state.finished then
+		log.info("Program already finished.", THIS)
+		return
+	end
+	if state_manager.state.error then
+		log.fatal("Program stoppt with an error!", THIS)
+		return
+	end
+	state_manager.saveState()
+	state_manager.log()
+    
+    -- Excavate
+    if not refuel() then
+		log.warn("Out of Fuel", THIS)
+		return
+	end
+
+	-- Return to last progress
+	log.verbose("Resuming mining...", THIS, true)
+	goTo( state_manager.state.progress.pos_x, state_manager.state.progress.pos_y, state_manager.state.progress.pos_z, state_manager.state.progress.dir_x, state_manager.state.progress.dir_z )
+	-- Excavateing 
+	log.verbose("Excavating...", THIS, true) 
+	excavate()
+	state_manager.log()
+
+	log.verbose("Returning to surface...", THIS, true)
+
+	-- Return to where we started
+	goTo( 0,0,0,0,-1 )
+	unload( false )
+	goTo( 0,0,0,0,1 )
+	state_manager.log()
+
+	log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
 end
 
 ----------- Run -----------
