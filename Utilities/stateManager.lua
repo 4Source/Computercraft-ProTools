@@ -111,6 +111,13 @@ function state_manager.createState()
     state_manager.loadState()
 end 
 
+-- Set current state to progress state
+function state_manager.setProgress()
+    for key, value in pairs(state_manager.state.current) do
+        state_manager.state.progress[key] = value
+    end
+end
+
 -- Log the current State
 function state_manager.log(force_print, force_log)
     log.debug(pro_util.varToString(state_manager.state, "state", {compact = true}), THIS, force_print, force_log)

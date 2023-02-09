@@ -75,7 +75,7 @@ local function unload( _bKeepOneFuelStack )
 end
 
 local function returnSupplies()
-    -- state_manager.state.progress = state_manager.state.current
+    state_manager.setProgress()
 	state_manager.saveState()
 
 
@@ -247,7 +247,7 @@ local function excavate()
 				log.verbose("Do Z Row.", THIS, false, true)
 				if not move_util.forward() then
 					log.warn("Can't move forward!", THIS)
-					-- state_manager.state.progress = state_manager.state.current
+					state_manager.setProgress()
 					state_manager.saveState()
 				    return 
 			    end
@@ -265,7 +265,7 @@ local function excavate()
 				if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
-						-- state_manager.state.progress = state_manager.state.current
+						state_manager.setProgress()
 						state_manager.saveState()
 						return 
 					end
@@ -273,7 +273,7 @@ local function excavate()
 				else
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
-						-- state_manager.state.progress = state_manager.state.current
+						state_manager.setProgress()
 						state_manager.saveState()
 						return 
 					end
@@ -290,7 +290,7 @@ local function excavate()
 	
 	    if not move_util.down() then
 			log.warn("Can't move down!", THIS)
-			-- state_manager.state.progress = state_manager.state.current
+				state_manager.setProgress()
 			state_manager.saveState()
 			
 		    return 
