@@ -24,28 +24,8 @@ local THIS = "ExcavatePro"
 
 state_manager = state_manager or require("ProTools.Utilities.stateManager")
 move_util = move_util or require("ProTools.Utilities.moveUtilities")
+ui_util = ui_util or require("ProTools.Utilities.uiUtil")
 log = log or require("ProTools.Utilities.logger")
-
-log.init()
-
-local tArgs = { ... }
-if #tArgs ~= 1 then
-	log.fatal("Usage: excavate <diameter>", THIS)
-	return
-end
-
--- Check for valid size input 
-if tonumber(tArgs[1]) < 1 then
-	log.fatal("Excavate diameter must be positive", THIS)
-	return
-end
-
--- Create new state and set size
-state_manager.createState()
-state_manager.state.size_x = tonumber(tArgs[1])
-state_manager.state.size_z = tonumber(tArgs[1])
-state_manager.saveState()
-state_manager.log()
 	
 local unloaded = 0
 local collected = 0
@@ -230,15 +210,19 @@ function goTo( x, y, z, xd, zd )
 	end
 	
 	while state_manager.state.current.dir_z ~= zd or state_manager.state.current.dir_x ~= xd do
-		move_util.turnLeft()
+		if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
+			move_util.turnRight()
+		else
+			move_util.turnLeft()
+		end
+		--move_util.turnLeft()
 	end
 end
 
 local function excavate()
     log.info("Excavating...", THIS) 
-    local done = false
-    while not done do
-        log.debug(pro_util.varToString(done, "finished"), THIS)
+    while not state_manager.state.finished do
+        log.debug(pro_util.varToString(state_manager.state.finished, "state.finished"), THIS)
 		while (state_manager.state.current.pos_x + state_manager.state.current.dir_x) <= (state_manager.state.size_x - 1) 
 		and (state_manager.state.current.pos_x + state_manager.state.current.dir_x) >= 0 do
 			log.verbose("Do X Row.", THIS, false, true)
@@ -287,32 +271,169 @@ local function excavate()
 		else
 			move_util.turnLeft()
 		end
-	
-	    if not move_util.down() then
-			log.warn("Can't move down!", THIS)
+
+		if state_manager.state.size_y == true
+		or state_manager.state.current.pos_y > (state_manager.state.size_y + 1) then
+			if not move_util.down() then
+				log.warn("Can't move down!", THIS)
 				state_manager.setProgress()
+				state_manager.saveState()
+				
+				return 
+			end
+		else
+			state_manager.setProgress()
+			state_manager.state.finished = true
 			state_manager.saveState()
-			
-		    return 
-	    end
+		end
     end 
 end 
 
+----------- Modes -----------
+-- Start mode
+function start()
+	log.init()
+    -- Get Excavate Size from User input
+    local validArgs = false
+	local size_x 
+	local size_z 
+	local size_y 
 
------------ Run -----------
-if not refuel() then
-	log.warn("Out of Fuel", THIS)
-	return
+	while not size_z or size_z <= 0 do 
+		-- Request Z <size> (<offset>)
+		tArgs = ui_util.requestInput("Excavate Z Size: ", "The Number of Blocks in front of the Turtle, including the Block where the Turtle stands.")
+
+		if #tArgs == 1 then 
+			size_z = tonumber(tArgs[1])
+		end
+	end
+
+	while not size_x or size_x <= 0 do 
+		-- Request X (<size>) (<offset>)
+        tArgs = ui_util.requestInput("Excavate X Size: ", "(optional) The Number of Blocks to the right of the Turtle, including the Block where the Turtle stands. If 0 or not passed in the <Z Size> would be used.")
+ 
+        if #tArgs == 1 then 
+            size_x = tonumber(tArgs[1])
+        else
+            size_x = size_z
+        end
+	end
+ 
+	while not size_y or (type(size_y) == "number" and size_y > 0) do
+		print("check y input")
+		-- Request Y (<size>) (<offset>)
+        tArgs = ui_util.requestInput("Excavate Y Size: ", "(optional) The Number of Blocks the Turtle should go down, including the Block where the Turtle stands. If not passed in depth is until we hit something we can't dig.")
+ 
+        if #tArgs == 1 then 
+            size_y = tonumber( tArgs[1] )
+            size_y = size_y * -1
+        elseif #tArgs == 0 then
+            size_y = true
+        end
+	end
+
+	-- Create new state 
+	state_manager.createState()
+	state_manager.state.size_x = size_x
+	state_manager.state.size_z = size_z
+	state_manager.state.size_y = size_y
+	state_manager.state.finished = false
+	state_manager.saveState()
+	state_manager.log()
+    
+    -- Excavate
+    if not state_manager.state.finished then        
+		if not refuel() then
+			log.warn("Out of Fuel", THIS)
+			return
+		end
+
+		-- Excavateing 
+		excavate()
+		state_manager.log()
+
+		log.verbose("Returning to surface...", THIS, true)
+
+		-- Return to where we started
+		goTo( 0,0,0,0,-1 )
+		unload( false )
+		goTo( 0,0,0,0,1 )
+		state_manager.log()
+
+		log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
+    end
+end
+ 
+-- Restart Function
+function restart()
+    -- Reset Turtle position in state values 
+ 
+ 
+    -- Excavate
+    if not state.finished then 
+        state.finished = excavate()
+        saveState()
+    end 
+ 
+end
+ 
+-- Continue Function
+function continue()
+    -- Excavate
+    if not state.finished then 
+        state.finished = excavate()
+        saveState()
+    end 
 end
 
--- Excavateing 
-excavate()
-
-log.info("Returning to surface...", THIS)
-
--- Return to where we started
-goTo( 0,0,0,0,-1 )
-unload( false )
-goTo( 0,0,0,0,1 )
-
-log.info("Mined "..(collected + unloaded).." items total.", THIS) 
+----------- Run -----------
+-- Check for input arguments 
+local tArgs = { ... }
+if #tArgs < 1 then 
+    log.verbose("Usage: "..shell.getRunningProgram().." <program mode>", THIS, true) 
+    return
+end 
+                
+-- Switch to selected program mode 
+local pMode = tArgs[1]
+-- Start: Request Player inputs and start digging 
+if pMode == "start" then 
+    if #tArgs > 1 then 
+        log.verbose("Usage: "..shell.getRunningProgram().." start", THIS, true) 
+        log.verbose("No extra Arguments allowed in this program mode.", THIS, true)
+        return
+    end 
+ 
+    log.info("Starting...", THIS)
+    start()
+   
+-- Restart: Restarts an old session with position of the Turtle manually placed to Start point 
+elseif pMode == "restart" then 
+    if #tArgs > 1 then 
+        log.verbose("Usage: "..shell.getRunningProgram().." restart", THIS, true) 
+        log.verbose("No extra Arguments allowed in this program mode.", THIS, true)
+        return
+    end 
+ 
+    log.info("Restarting...", THIS)
+    restart()
+   
+-- Continue: Turtle Stopped program restart at position where stopped 
+elseif pMode == "continue" then
+    if #tArgs > 1 then 
+        log.verbose("Usage: "..shell.getRunningProgram().." continue", THIS, true) 
+        log.verbose("No extra Arguments allowed in this program mode.", THIS, true)
+        return
+    end 
+	
+    log.info("Continue...", THIS)
+	-- Countdown to exit
+    continue()
+    
+-- Invalid     
+else
+    log.verbose("Usage: "..shell.getRunningProgram().." <program mode>", THIS, true)
+    log.verbose("Valid <program mode> is required!", THIS, true)
+    log.verbose("Modes: 'start', 'restart', 'setup', 'help'", THIS, true)    
+    return
+end
