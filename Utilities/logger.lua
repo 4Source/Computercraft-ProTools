@@ -110,11 +110,28 @@ local function logging(msg, caller, log_level, without_timestamp)
     file_util.appendFile(log_path..log_file_name, log_msg)
 end 
 
+-- Initalisation
+function log.init()
+    -- get the configuration for the logger
+    local config = config_manager.searchCategory("Logger")
+    if not config then 
+        logging("No configuration for Logger found!", "log", "ERROR")
+        return 
+    end
+
+    if config.bREMOVE_PRE then
+        file_util.removeFile(log_path..log_file_name, true, true)
+    end
+end
+
 -- Log Fatal 
 function log.fatal(msg, caller, force_print, force_log)
     -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
-    if not config then return end
+    if not config then 
+        logging("No configuration for Logger found!", "log", "ERROR")
+        return 
+    end
     -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("FATAL") then 
         print(msg)
@@ -129,7 +146,10 @@ end
 function log.error(msg, caller, force_print, force_log)
     -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
-    if not config then return end
+    if not config then 
+        logging("No configuration for Logger found!", "log", "ERROR")
+        return 
+    end
     -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("ERROR") then 
         print(msg)
@@ -144,7 +164,10 @@ end
 function log.warn(msg, caller, force_print, force_log)
     -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
-    if not config then return end
+    if not config then 
+        logging("No configuration for Logger found!", "log", "ERROR")
+        return 
+    end
     -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("WARN") then 
         print(msg)
@@ -159,7 +182,10 @@ end
 function log.info(msg, caller, force_print, force_log)
     -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
-    if not config then return end
+    if not config then 
+        logging("No configuration for Logger found!", "log", "ERROR")
+        return 
+    end
     -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("INFO") then 
         print(msg)
@@ -174,7 +200,10 @@ end
 function log.debug(msg, caller, force_print, force_log)
     -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
-    if not config then return end
+    if not config then 
+        logging("No configuration for Logger found!", "log", "ERROR")
+        return 
+    end
     -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("DEBUG") then 
         print(msg)
@@ -189,7 +218,10 @@ end
 function log.verbose(msg, caller, force_print, force_log)
     -- get the configuration for the logger
     local config = config_manager.searchCategory("Logger")
-    if not config then return end
+    if not config then 
+        logging("No configuration for Logger found!", "log", "ERROR")
+        return 
+    end
     -- print the message if level is high enough 
     if force_print or logLevelToNum(config.PRINT_LEVEL) >= logLevelToNum("VERBOSE") then 
         print(msg)
@@ -201,6 +233,7 @@ function log.verbose(msg, caller, force_print, force_log)
 end
 
 ----------- Run -----------
+--init()
 
 ----------- Return -----------
 return log

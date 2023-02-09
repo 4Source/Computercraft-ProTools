@@ -26,6 +26,7 @@ state_manager = state_manager or require("ProTools.Utilities.stateManager")
 move_util = move_util or require("ProTools.Utilities.moveUtilities")
 log = log or require("ProTools.Utilities.logger")
 
+log.init()
 
 local tArgs = { ... }
 if #tArgs ~= 1 then
