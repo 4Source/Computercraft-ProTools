@@ -20,6 +20,7 @@
 ui_util = {}
 
 ----------- Require -----------
+pro_util = pro_util or require("ProTools.Utilities.proUtilities")
 log = log or require("ProTools.Utilities.logger")
 
 ----------- Variables -----------
@@ -30,7 +31,7 @@ local THIS = "ui_util"
 ----------- Functions -----------
 --
 function ui_util.ensure(question)
-    print(question.." (y/n): ")
+    log.verbose(question.." (y/n): ", THIS, true)
     local input = io.read()
     if input == "y" then
         return true
@@ -42,7 +43,7 @@ function ui_util.ensure(question)
 end 
 
 -- Get Input from UI
-function ui_util.requestInput( input_text, helper_text )
+function ui_util.requestInput(input_text, helper_text)
     
     if not input_text then return false end
  
@@ -50,12 +51,13 @@ function ui_util.requestInput( input_text, helper_text )
     term.clear()
     term.setCursorPos(1, 1)
     io.write(input_text)
+    log.verbose(input_text, THIS, false)
     
     if helper_text then 
         c_pos_x, c_pos_y = term.getCursorPos()
         print("")
         print("")
-        print(helper_text)
+        log.verbose(helper_text, THIS, true)
         term.setCursorPos(c_pos_x, c_pos_y)
     end
     
@@ -67,15 +69,13 @@ function ui_util.requestInput( input_text, helper_text )
     term.setCursorPos(1, 1)
     
     -- Return args
-    return split(input)
+    return pro_util.split(input)
 end 
 
 -- Wait for any key press
 local function anykey()
 
 end 
-
------------ Run -----------
 
 ----------- Return -----------
 return ui_util
