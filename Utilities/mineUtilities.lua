@@ -31,8 +31,8 @@ local THIS = "mine_util"
 -- Return false if there is no possibly way to move 
 function mine_util.forward()
     local done_turtle_forward
-    local detect_turtle_forward = turtle.detect() 
-    if detect_turtle_forward then 
+    local detected_turtle_forward = turtle.detect() 
+    if detected_turtle_forward then 
         done_turtle_forward = turtle.dig()
     else
         done_turtle_forward = true
@@ -72,8 +72,8 @@ end
 -- Return false if there is no possibly way to move 
 function mine_util.down()
     local done_turtle_down
-    local detect_turtle_down = turtle.detectDown() 
-    if detect_turtle_down then 
+    local detected_turtle_down = turtle.detectDown() 
+    if detected_turtle_down then 
         done_turtle_down = turtle.digDown()
     else
         done_turtle_down = true
@@ -97,8 +97,8 @@ end
 -- Return false if there is no possibly way to move 
 function mine_util.up()
     local done_turtle_up
-    local detect_turtle_up = turtle.detectUp() 
-    if detect_turtle_up then 
+    local detected_turtle_up = turtle.detectUp() 
+    if detected_turtle_up then 
         done_turtle_up = turtle.digUp()
     else
         done_turtle_up = true
