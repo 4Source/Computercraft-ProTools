@@ -131,6 +131,68 @@ function move_util.forward()
     return true
 end
 
+function move_util.goTo( position )
+	while state_manager.state.current.pos_y < position.pos_y do
+		if not move_util.up() then
+			sleep( 0.5 )
+		end
+	end
+
+	if state_manager.state.current.pos_x > position.pos_x then
+		while state_manager.state.current.dir_x ~= -1 do
+			move_util.turnLeft()
+		end
+		while state_manager.state.current.pos_x > position.pos_x do
+			if not move_util.forward() then
+				sleep( 0.5 )
+			end
+		end
+	elseif state_manager.state.current.pos_x < position.pos_x then
+		while state_manager.state.current.dir_x ~= 1 do
+			move_util.turnLeft()
+		end
+		while state_manager.state.current.pos_x < position.pos_x do
+			if not move_util.forward() then
+				sleep( 0.5 )
+			end
+		end
+	end
+	
+	if state_manager.state.current.pos_z > position.pos_z then
+		while state_manager.state.current.dir_z ~= -1 do
+			move_util.turnLeft()
+		end
+		while state_manager.state.current.pos_z > position.pos_z do
+			if not move_util.forward() then
+				sleep( 0.5 )
+			end
+		end
+	elseif state_manager.state.current.pos_z < position.pos_z then
+		while state_manager.state.current.dir_z ~= 1 do
+			move_util.turnLeft()
+		end
+		while state_manager.state.current.pos_z < position.pos_z do
+			if not move_util.forward() then
+				sleep( 0.5 )
+			end
+		end	
+	end
+	
+	while state_manager.state.current.pos_y > position.pos_y do
+		if not move_util.down() then
+			sleep( 0.5 )
+		end
+	end
+	
+	while state_manager.state.current.dir_z ~= position.dir_z or state_manager.state.current.dir_x ~= position.dir_x do
+		if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
+			move_util.turnRight()
+		else
+			move_util.turnLeft()
+		end
+	end
+end
+
 ----------- Run -----------
  
 ----------- Return -----------

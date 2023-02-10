@@ -32,7 +32,6 @@ log = log or require("ProTools.Utilities.logger")
 local unloaded = 0
 local collected = 0
 
-local goTo -- Filled in further down (function)
 local refuel -- Filled in further down
  
 local function unload( _bKeepOneFuelStack )
@@ -57,12 +56,8 @@ local function unload( _bKeepOneFuelStack )
 end
 
 local function returnSupplies()
-    state_manager.setProgress()
-	state_manager.saveState()
-
-
 	log.info("Returning to surface...", THIS)
-	goTo( 0,0,0,0,-1 )
+	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = -1})
 	
 	local fuelNeeded = 2*(x+y+z) + 1
 	if not refuel( fuelNeeded ) then
@@ -76,7 +71,7 @@ local function returnSupplies()
 	end
 	
 	log.info("Resuming mining...", THIS)
-	goTo( state_manager.state.progress.pos_x, state_manager.state.progress.pos_y, state_manager.state.progress.pos_z, state_manager.state.progress.dir_x, state_manager.state.progress.dir_z )
+	move_util.goTo(state_manager.state.progress)
 end
 
 local function collect()	
@@ -132,93 +127,6 @@ function refuel( ammount )
 	end
 	
 	return true
-end
-
-function goTo( x, y, z, xd, zd )
-	while state_manager.state.current.pos_y < y do
-		if move_util.up() then
-			-- do nothing
-		-- elseif turtle.digUp() or turtle.attackUp() then
-		-- 	collect()
-		else
-			sleep( 0.5 )
-		end
-	end
-
-	if state_manager.state.current.pos_x > x then
-		while state_manager.state.current.dir_x ~= -1 do
-			move_util.turnLeft()
-		end
-		while state_manager.state.current.pos_x > x do
-			if move_util.forward() then
-                -- do nothing
-			-- elseif turtle.dig() or turtle.attack() then
-			-- 	collect()
-			else
-				sleep( 0.5 )
-			end
-		end
-	elseif state_manager.state.current.pos_x < x then
-		while state_manager.state.current.dir_x ~= 1 do
-			move_util.turnLeft()
-		end
-		while state_manager.state.current.pos_x < x do
-			if move_util.forward() then
-                -- do nothing
-			-- elseif turtle.dig() or turtle.attack() then
-			-- 	collect()
-			else
-				sleep( 0.5 )
-			end
-		end
-	end
-	
-	if state_manager.state.current.pos_z > z then
-		while state_manager.state.current.dir_z ~= -1 do
-			move_util.turnLeft()
-		end
-		while state_manager.state.current.pos_z > z do
-			if move_util.forward() then
-                -- do nothing
-			-- elseif turtle.dig() or turtle.attack() then
-			-- 	collect()
-			else
-				sleep( 0.5 )
-			end
-		end
-	elseif state_manager.state.current.pos_z < z then
-		while state_manager.state.current.dir_z ~= 1 do
-			move_util.turnLeft()
-		end
-		while state_manager.state.current.pos_z < z do
-			if move_util.forward() then
-                -- do nothing
-			-- elseif turtle.dig() or turtle.attack() then
-			-- 	collect()
-			else
-				sleep( 0.5 )
-			end
-		end	
-	end
-	
-	while state_manager.state.current.pos_y > y do
-		if move_util.down() then
-            -- do nothing
-		-- elseif turtle.digDown() or turtle.attackDown() then
-		-- 	collect()
-		else
-			sleep( 0.5 )
-		end
-	end
-	
-	while state_manager.state.current.dir_z ~= zd or state_manager.state.current.dir_x ~= xd do
-		if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
-			move_util.turnRight()
-		else
-			move_util.turnLeft()
-		end
-		--move_util.turnLeft()
-	end
 end
 
 local function excavate()
@@ -402,9 +310,9 @@ function start()
 	log.verbose("Returning to surface...", THIS, true)
 
 	-- Return to where we started
-	goTo( 0,0,0,0,-1 )
+	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = -1})
 	unload( false )
-	goTo( 0,0,0,0,1 )
+	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = 1})
 	state_manager.log()
 
 	log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
@@ -438,7 +346,7 @@ function restart()
 
 	-- Return to last progress
 	log.verbose("Resuming mining...", THIS, true)
-	goTo( state_manager.state.progress.pos_x, state_manager.state.progress.pos_y, state_manager.state.progress.pos_z, state_manager.state.progress.dir_x, state_manager.state.progress.dir_z )
+	move_util.goTo(state_manager.state.progress)
 	-- Excavateing 
 	log.verbose("Excavating...", THIS, true) 
 	excavate()
@@ -447,9 +355,9 @@ function restart()
 	log.verbose("Returning to surface...", THIS, true)
 
 	-- Return to where we started
-	goTo( 0,0,0,0,-1 )
+	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = -1})
 	unload( false )
-	goTo( 0,0,0,0,1 )
+	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = 1})
 	state_manager.log()
 
 	log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
@@ -494,7 +402,7 @@ function continue()
 
 	-- Return to last progress
 	log.verbose("Resuming mining...", THIS, true)
-	goTo( state_manager.state.progress.pos_x, state_manager.state.progress.pos_y, state_manager.state.progress.pos_z, state_manager.state.progress.dir_x, state_manager.state.progress.dir_z )
+	move_util.goTo(state_manager.state.progress)
 	-- Excavateing 
 	log.verbose("Excavating...", THIS, true) 
 	excavate()
@@ -503,9 +411,9 @@ function continue()
 	log.verbose("Returning to surface...", THIS, true)
 
 	-- Return to where we started
-	goTo( 0,0,0,0,-1 )
+	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = -1})
 	unload( false )
-	goTo( 0,0,0,0,1 )
+	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = 1})
 	state_manager.log()
 
 	log.verbose("Mined "..(collected + unloaded).." items total.", THIS, true) 
