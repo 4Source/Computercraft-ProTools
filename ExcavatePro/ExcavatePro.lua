@@ -22,6 +22,7 @@ P_VERSION = "0.1.0"
 -- Name of self
 local THIS = "ExcavatePro"
 
+pro_util = pro_util or require("ProTools.Utilities.proUtilities")
 state_manager = state_manager or require("ProTools.Utilities.stateManager")
 move_util = move_util or require("ProTools.Utilities.moveUtilities")
 mine_util = mine_util or require("ProTools.Utilities.mineUtilities")
@@ -225,10 +226,10 @@ local function excavate()
         log.debug(pro_util.varToString(state_manager.state.finished, "state.finished"), THIS)
 		while (state_manager.state.current.pos_x + state_manager.state.current.dir_x) <= (state_manager.state.size_x - 1) 
 		and (state_manager.state.current.pos_x + state_manager.state.current.dir_x) >= 0 do
-			log.verbose("Do X Row.", THIS, false, true)
+			log.verbose("Do X Row.", THIS)
 			while (state_manager.state.current.pos_z + state_manager.state.current.dir_z) <= (state_manager.state.size_z - 1) 
 			and (state_manager.state.current.pos_z + state_manager.state.current.dir_z) >= 0 do
-				log.verbose("Do Z Row.", THIS, false, true)
+				log.verbose("Do Z Row.", THIS)
 				if not mine_util.forward() then 
 					log.warn("Can't dig forward!", THIS)
 					state_manager.state.error = true
@@ -253,7 +254,7 @@ local function excavate()
 
 			if (state_manager.state.current.pos_x + state_manager.state.current.dir_x) <= (state_manager.state.size_x - 1) 
 			and (state_manager.state.current.pos_x + state_manager.state.current.dir_x) >= 0 then
-				log.verbose("Change X Row.", THIS, false, true)
+				log.verbose("Change X Row.", THIS)
 				if math.fmod(state_manager.state.current.pos_x, 2) == 0 then
 					if not mine_util.forward() then 
 						log.warn("Can't dig forward!", THIS)
@@ -459,6 +460,18 @@ function continue()
     -- Load state 
 	state_manager.loadState()
 
+	-- get the configuration for the modes
+    local config = config_manager.searchCategory("Modes")
+    if not config then 
+        log.error("No configuration for Modes found!", THIS)
+        return 
+    end
+
+	if not config.bAUTO_RESTART then 
+		log.info("Auto restart is turned off.", THIS)
+		return
+	end
+
 	-- Check Verion/Program compatibility
 
 	-- Check the State
@@ -499,6 +512,9 @@ function continue()
 end
 
 ----------- Run -----------
+-- Setup the Mode Settings
+pro_util.setupModes()
+
 -- Check for input arguments 
 local tArgs = { ... }
 if #tArgs < 1 then 

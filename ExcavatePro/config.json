@@ -1,12 +1,15 @@
 {
     "VERSION": "0.1.0",
-    "bAUTO_RESTART": "false",
     "CATEGORYS": [
         {
             "CATEGORY": "Logger",
             "LOG_LEVEL": "WARN",
             "PRINT_LEVEL": "INFO",
             "bREMOVE_PRE": true
+        },
+        {
+            "CATEGORY": "Modes",
+            "bAUTO_RESTART": true
         }
     ]
 }

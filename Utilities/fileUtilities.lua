@@ -72,6 +72,17 @@ function file_util.saveFile( file_path, data_in )
     end
 end
 
+-- Create/Open file and safe data
+function file_util.saveProgram( file_path, data_in )
+    local file = io.open(file_path,"w")
+    if not file then return false end 
+    if file:write(data_in) then 
+        return file:close()
+    else 
+        return false
+    end
+end
+
 -- Load file if exists and return Data 
 function file_util.loadFile( file_path )
     -- Get file, if exists

@@ -57,6 +57,22 @@ function pro_util.varToString(var, var_name, opts)
     return v_name.."("..v_type.."): "..v_value
 end 
 
+function pro_util.setupModes()
+    -- get the configuration for the modes
+    local config = config_manager.searchCategory("Modes")
+    if not config then 
+        log.error("No configuration for Modes found!", THIS)
+        return 
+    end
+
+	-- Create Startup file 
+    if config.bAUTO_RESTART then 
+		file_util.saveProgram("/startup", "shell.run('"..shell.getRunningProgram().." continue')")
+    else
+        file_util.removeFile("/startup", true)
+    end 
+end
+
 ----------- Run -----------
 
 ----------- Return -----------

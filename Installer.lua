@@ -95,6 +95,10 @@ ufile_list = {
     {   
         name = "config",
         path = "/ProTools/ExcavatePro"
+    },
+    {
+        name = "startup",
+        path = ""
     }
 }
 

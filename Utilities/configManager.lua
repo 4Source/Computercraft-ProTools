@@ -34,7 +34,6 @@ local function init()
             fs.makeDir(config_path)
         end 
     end
-
 end 
 
 -- 
@@ -57,12 +56,12 @@ end
 
 function config_manager.searchCategory(category)
     local exists, data = file_util.loadJSON(config_path..config_file_name)
-    if exists then 
+    if exists and data then 
         for i = 1, #data.CATEGORYS do
             if data.CATEGORYS[i].CATEGORY == category then 
                 return data.CATEGORYS[i]
             end
-        end
+        end 
     end 
 end 
 
