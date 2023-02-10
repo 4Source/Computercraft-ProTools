@@ -28,106 +28,6 @@ move_util = move_util or require("ProTools.Utilities.moveUtilities")
 mine_util = mine_util or require("ProTools.Utilities.mineUtilities")
 ui_util = ui_util or require("ProTools.Utilities.uiUtil")
 log = log or require("ProTools.Utilities.logger")
-	
-local unloaded = 0
-local collected = 0
-
-local refuel -- Filled in further down
- 
-local function unload( _bKeepOneFuelStack )
-	log.info("Unloading items...", THIS)
-	for n=1,16 do
-		local nCount = turtle.getItemCount(n)
-		if nCount > 0 then
-			turtle.select(n)			
-			local bDrop = true
-			if _bKeepOneFuelStack and turtle.refuel(0) then
-				bDrop = false
-				_bKeepOneFuelStack = false
-			end			
-			if bDrop then
-				turtle.drop()
-				unloaded = unloaded + nCount
-			end
-		end
-	end
-	collected = 0
-	turtle.select(1)
-end
-
-local function returnSupplies()
-	log.info("Returning to surface...", THIS)
-	move_util.goTo({ pos_x = 0, pos_y = 0, pos_z = 0, dir_x = 0, dir_z = -1})
-	
-	local fuelNeeded = 2*(x+y+z) + 1
-	if not refuel( fuelNeeded ) then
-		unload( true )
-		log.info("Waiting for fuel", THIS)
-		while not refuel( fuelNeeded ) do
-			os.pullEvent( "turtle_inventory" )
-		end
-	else
-		unload( true )	
-	end
-	
-	log.info("Resuming mining...", THIS)
-	move_util.goTo(state_manager.state.progress)
-end
-
-local function collect()	
-	local bFull = true
-	local nTotalItems = 0
-	for n=1,16 do
-		local nCount = turtle.getItemCount(n)
-		if nCount == 0 then
-			bFull = false
-		end
-		nTotalItems = nTotalItems + nCount
-	end
-	
-	if nTotalItems > collected then
-		collected = nTotalItems
-		if math.fmod(collected + unloaded, 50) == 0 then
-			log.info("Mined "..(collected + unloaded).." items.", THIS)
-		end
-	end
-	
-	if bFull then
-		log.warn("No empty slots left.", THIS)
-		return false
-	end
-	return true
-end
-
-function refuel( ammount )
-	local fuelLevel = turtle.getFuelLevel()
-	if fuelLevel == "unlimited" then
-		return true
-	end
-	
-	local needed = ammount or (state_manager.state.current.pos_x + state_manager.state.current.pos_z + state_manager.state.current.pos_y + 2)
-	if turtle.getFuelLevel() < needed then
-		local fueled = false
-		for n=1,16 do
-			if turtle.getItemCount(n) > 0 then
-				turtle.select(n)
-				if turtle.refuel(1) then
-					while turtle.getItemCount(n) > 0 and turtle.getFuelLevel() < needed do
-						turtle.refuel(1)
-					end
-					if turtle.getFuelLevel() >= needed then
-						turtle.select(1)
-						return true
-					end
-				end
-			end
-		end
-		turtle.select(1)
-		return false
-	end
-	
-	return true
-end
 
 local function excavate()
     while not state_manager.state.finished and not state_manager.state.error do
@@ -141,14 +41,12 @@ local function excavate()
 				if not mine_util.forward() then 
 					log.warn("Can't dig forward!", THIS)
 					state_manager.state.error = true
-					state_manager.setProgress()
 					state_manager.saveState()
 				    return 
 				end
 				if not move_util.forward() then
 					log.warn("Can't move forward!", THIS)
 					state_manager.state.error = true
-					state_manager.setProgress()
 					state_manager.saveState()
 				    return 
 			    end
@@ -167,14 +65,12 @@ local function excavate()
 					if not mine_util.forward() then 
 						log.warn("Can't dig forward!", THIS)
 						state_manager.state.error = true
-						state_manager.setProgress()
 						state_manager.saveState()
 						return 
 					end
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
 						state_manager.state.error = true
-						state_manager.setProgress()
 						state_manager.saveState()
 						return 
 					end
@@ -183,14 +79,12 @@ local function excavate()
 					if not mine_util.forward() then 
 						log.warn("Can't dig forward!", THIS)
 						state_manager.state.error = true
-						state_manager.setProgress()
 						state_manager.saveState()
 						return 
 					end
 					if not move_util.forward() then
 						log.warn("Can't move forward!", THIS)
 						state_manager.state.error = true
-						state_manager.setProgress()
 						state_manager.saveState()
 						return 
 					end
@@ -214,20 +108,17 @@ local function excavate()
 				else
 					state_manager.state.error = true
 				end
-				state_manager.setProgress()
 				state_manager.saveState()
 				return 
 			end
 			if not move_util.down() then
 				log.warn("Can't move down!", THIS)
 				state_manager.state.error = true
-				state_manager.setProgress()
 				state_manager.saveState()
 				
 				return 
 			end
 		else
-			state_manager.setProgress()
 			state_manager.state.finished = true
 			state_manager.saveState()
 		end
@@ -391,7 +282,6 @@ function continue()
 		log.fatal("Program stoppt with an error!", THIS)
 		return
 	end
-	state_manager.saveState()
 	state_manager.log()
     
     -- Excavate
