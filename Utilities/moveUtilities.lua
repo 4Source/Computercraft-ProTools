@@ -31,101 +31,120 @@ local THIS = "move_util"
 ----------- Functions ----------- 
 -- Turtle turn left
 function move_util.turnLeft()
-    local done_turtle_turn_left = turtle.turnLeft()
-
-    if not done_turtle_turn_left then 
+    if not turtle.turnLeft() then 
         log.verbose("Turtle failed to turn left.", THIS)
         sleep( 0.5 )
         return false 
     end
     
     state_manager.state.current.dir_x, state_manager.state.current.dir_z = -state_manager.state.current.dir_z, state_manager.state.current.dir_x
-    log.debug({pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x"),pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z")}, THIS)
-    --log.debug(pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), THIS) 
     state_manager.saveState()
 
+    log.debug({
+        pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"),
+        pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), 
+        pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"),
+        pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), 
+        pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x") 
+    }, THIS) 
     log.verbose("Turtle successfully turned left.", THIS)
     return true
 end 
 
 -- Turtle turn rigth
 function move_util.turnRight()
-    local done_turtle_turn_right = turtle.turnRight()
-    
-    if not done_turtle_turn_right then 
+    if not turtle.turnRight() then 
         log.verbose("Turtle failed to turn right.", THIS)
         sleep( 0.5 )
         return false
     end
     
     state_manager.state.current.dir_x, state_manager.state.current.dir_z = state_manager.state.current.dir_z, -state_manager.state.current.dir_x
-    log.debug({pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x"),pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z")}, THIS)
-    --log.debug(pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), THIS)  
     state_manager.saveState()
 
+    log.debug({
+        pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"),
+        pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), 
+        pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"),
+        pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), 
+        pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x") 
+    }, THIS) 
     log.verbose("Turtle successfully turned right.", THIS)
     return true
 end  
 
 -- Turtle move up. Returns false if failed.
 function move_util.up()
-    local done_turtle_up = turtle.up()
-    
-    if not done_turtle_up then
+    if not turtle.up() then
         log.verbose("Turtle failed to move up.", THIS)
         sleep( 0.5 )
         return false
     end
     
     state_manager.state.current.pos_y = state_manager.state.current.pos_y + 1
-    log.debug(pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"), THIS) 
     state_manager.saveState()
 
+    log.debug({
+        pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"),
+        pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), 
+        pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"),
+        pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), 
+        pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x") 
+    }, THIS) 
     log.verbose("Turtle successfully moved up.", THIS)
     return true
 end 
 
 -- Turtle move down. Returns false if failed.  
 function move_util.down()
-    local done_turtle_down = turtle.down()
-    
-    if not done_turtle_down then 
+    if not turtle.down() then 
         log.verbose("Turtle failed to move down.", THIS)
         sleep( 0.5 )
         return false
     end
     
     state_manager.state.current.pos_y = state_manager.state.current.pos_y - 1
-    log.debug(pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"), THIS)
     state_manager.saveState()
-
+    
+    log.debug({
+        pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"),
+        pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), 
+        pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"),
+        pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), 
+        pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x") 
+    }, THIS) 
     log.verbose("Turtle successfully moved down.", THIS)
     return true
 end 
 
 -- Turtle move forward. Returns false if failed.  
 function move_util.forward()
-    local done_turtle_forward = turtle.forward()
-    
-    if not done_turtle_forward then 
+    if not turtle.forward() then 
         log.verbose("Turtle failed to move forward.", THIS)
         sleep( 0.5 )
         return false
     end
-    
-    if (state_manager.state.current.dir_x == 1 or state_manager.state.current.dir_x == -1) and state_manager.state.current.dir_z == 0 then
-        state_manager.state.current.pos_x = state_manager.state.current.pos_x + state_manager.state.current.dir_x
-        log.debug(pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), THIS) 
 
-    elseif(state_manager.state.current.dir_z == 1 or state_manager.state.current.dir_z == -1) and state_manager.state.current.dir_x == 0 then
-        state_manager.state.current.pos_z = state_manager.state.current.pos_z + state_manager.state.current.dir_z
-        log.debug(pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"), THIS) 
-    else
-        log.error("Invalid movement state by moving forward. Out of sync!", THIS)
+    state_manager.state.current.pos_x = state_manager.state.current.pos_x + state_manager.state.current.dir_x
+    state_manager.state.current.pos_z = state_manager.state.current.pos_z + state_manager.state.current.dir_z
+    state_manager.saveState()
+    
+    log.debug({
+        pro_util.varToString(state_manager.state.current.pos_z, "state.current.pos_z"),
+        pro_util.varToString(state_manager.state.current.pos_x, "state.current.pos_x"), 
+        pro_util.varToString(state_manager.state.current.pos_y, "state.current.pos_y"),
+        pro_util.varToString(state_manager.state.current.dir_z, "state.current.dir_z"), 
+        pro_util.varToString(state_manager.state.current.dir_x, "state.current.dir_x") 
+    }, THIS) 
+
+    if (state_manager.state.current.dir_x == 1 or state_manager.state.current.dir_x == -1) 
+    and (state_manager.state.current.dir_z == 1 or state_manager.state.current.dir_z == -1) then
         state_manager.state.error = true
+        state_manager.saveState()
+
+        log.error("Invalid movement state by moving forward. Out of sync!", THIS)
         return false
     end
-    state_manager.saveState()
 
     log.verbose("Turtle successfully moved forward.", THIS)
     return true
@@ -147,18 +166,9 @@ function move_util.goTo( position )
 				sleep( 0.5 )
 			end
 		end
-	elseif state_manager.state.current.pos_x < position.pos_x then
-		while state_manager.state.current.dir_x ~= 1 do
-			move_util.turnLeft()
-		end
-		while state_manager.state.current.pos_x < position.pos_x do
-			if not move_util.forward() then
-				sleep( 0.5 )
-			end
-		end
-	end
-	
-	if state_manager.state.current.pos_z > position.pos_z then
+    end
+
+    if state_manager.state.current.pos_z > position.pos_z then
 		while state_manager.state.current.dir_z ~= -1 do
 			move_util.turnLeft()
 		end
@@ -167,7 +177,9 @@ function move_util.goTo( position )
 				sleep( 0.5 )
 			end
 		end
-	elseif state_manager.state.current.pos_z < position.pos_z then
+	end
+
+    if state_manager.state.current.pos_z < position.pos_z then
 		while state_manager.state.current.dir_z ~= 1 do
 			move_util.turnLeft()
 		end
@@ -176,6 +188,17 @@ function move_util.goTo( position )
 				sleep( 0.5 )
 			end
 		end	
+	end
+
+	if state_manager.state.current.pos_x < position.pos_x then
+		while state_manager.state.current.dir_x ~= 1 do
+			move_util.turnLeft()
+		end
+		while state_manager.state.current.pos_x < position.pos_x do
+			if not move_util.forward() then
+				sleep( 0.5 )
+			end
+		end
 	end
 	
 	while state_manager.state.current.pos_y > position.pos_y do
@@ -192,8 +215,6 @@ function move_util.goTo( position )
 		end
 	end
 end
-
------------ Run -----------
  
 ----------- Return -----------
 return move_util
