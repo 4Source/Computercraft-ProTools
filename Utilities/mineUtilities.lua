@@ -20,6 +20,7 @@
 mine_util = {}
 
 ----------- Require -----------
+state_manager = state_manager or require("ProTools.Utilities.stateManager")
 log = log or require("ProTools.Utilities.logger")
  
 ----------- Variables -----------
@@ -30,40 +31,36 @@ local THIS = "mine_util"
 ----- Digging Functions -----
 -- Return false if there is no possibly way to move 
 function mine_util.forward()
-    local done_turtle_forward
-    local detected_turtle_forward = turtle.detect() 
-    if detected_turtle_forward then 
-        done_turtle_forward = turtle.dig()
-    else
-        done_turtle_forward = true
+    if turtle.detect() then 
+        log.verbose("Turtle detected forward.", THIS)
+        if not turtle.dig() then 
+            log.verbose("Turtle failed to dig forward.", THIS)
+            sleep( 0.5 )
+            return false
+        end        
     end
 
-    if not done_turtle_forward then 
-        log.verbose("Turtle failed to dig forward.", THIS)
-        sleep( 0.5 )
-        return false
-    end
+    state_manager.state.progress.pos_x = state_manager.state.current.pos_x + state_manager.state.current.dir_x
+    state_manager.state.progress.pos_z = state_manager.state.current.pos_z + state_manager.state.current.dir_z
+    state_manager.state.progress.dir_x, state_manager.state.progress.dir_z = state_manager.state.current.dir_x, state_manager.state.current.dir_z
+    state_manager.saveState()
     
-    if (state_manager.state.progress.dir_x == 1 or state_manager.state.progress.dir_x == -1) 
-    and state_manager.state.progress.dir_z == 0 then
-        state_manager.setProgress()
-        state_manager.state.progress.pos_x = state_manager.state.progress.pos_x + state_manager.state.progress.dir_x
-        state_manager.saveState()
-        log.debug(pro_util.varToString(state_manager.state.progress.pos_x, "state.progress.pos_x"), THIS) 
+    log.debug({
+        pro_util.varToString(state_manager.state.progress.pos_z, "state.progress.pos_z"),
+        pro_util.varToString(state_manager.state.progress.pos_x, "state.progress.pos_x"), 
+        pro_util.varToString(state_manager.state.progress.pos_y, "state.progress.pos_y"),
+        pro_util.varToString(state_manager.state.progress.dir_z, "state.progress.dir_z"), 
+        pro_util.varToString(state_manager.state.progress.dir_x, "state.progress.dir_x") 
+    }, THIS) 
 
-    elseif(state_manager.state.progress.dir_z == 1 or state_manager.state.progress.dir_z == -1) 
-    and state_manager.state.progress.dir_x == 0 then
-        state_manager.setProgress()
-        state_manager.state.progress.pos_z = state_manager.state.progress.pos_z + state_manager.state.progress.dir_z
-        state_manager.saveState()
-        log.debug(pro_util.varToString(state_manager.state.progress.pos_z, "state.progress.pos_z"), THIS) 
-    else
-        log.error("Invalid digging state by dig forward. Out of sync!", THIS)
+    if (state_manager.state.progress.dir_x == 1 or state_manager.state.progress.dir_x == -1) 
+    and (state_manager.state.progress.dir_z == 1 or state_manager.state.progress.dir_z == -1) then
         state_manager.state.error = true
         state_manager.saveState()
+
+        log.error("Invalid digging state by dig forward. Out of sync!", THIS)
         return false
-    end
-    
+    end    
 
     log.verbose("Turtle successfully dig forward.", THIS)
     return true
@@ -71,55 +68,53 @@ end
  
 -- Return false if there is no possibly way to move 
 function mine_util.down()
-    local done_turtle_down
-    local detected_turtle_down = turtle.detectDown() 
-    if detected_turtle_down then 
-        done_turtle_down = turtle.digDown()
-    else
-        done_turtle_down = true
+    if turtle.detectDown() then 
+        if not turtle.digDown() then 
+            log.verbose("Turtle failed to dig down.", THIS)
+            sleep( 0.5 )
+            return false
+        end
     end
     
-    if not done_turtle_down then 
-        log.verbose("Turtle failed to dig down.", THIS)
-        sleep( 0.5 )
-        return false
-    end
-    
-    state_manager.setProgress()
     state_manager.state.progress.pos_y = state_manager.state.progress.pos_y - 1
+    state_manager.state.progress.dir_x, state_manager.state.progress.dir_z = state_manager.state.current.dir_x, state_manager.state.current.dir_z
     state_manager.saveState()
-    log.debug(pro_util.varToString(state_manager.state.progress.pos_y, "state.progress.pos_y"), THIS)
 
+    log.debug({
+        pro_util.varToString(state_manager.state.progress.pos_z, "state.progress.pos_z"),
+        pro_util.varToString(state_manager.state.progress.pos_x, "state.progress.pos_x"), 
+        pro_util.varToString(state_manager.state.progress.pos_y, "state.progress.pos_y"),
+        pro_util.varToString(state_manager.state.progress.dir_z, "state.progress.dir_z"), 
+        pro_util.varToString(state_manager.state.progress.dir_x, "state.progress.dir_x") 
+    }, THIS) 
     log.verbose("Turtle successfully dig down.", THIS)
     return true
 end 
 
 -- Return false if there is no possibly way to move 
 function mine_util.up()
-    local done_turtle_up
-    local detected_turtle_up = turtle.detectUp() 
-    if detected_turtle_up then 
-        done_turtle_up = turtle.digUp()
-    else
-        done_turtle_up = true
+    if turtle.detectUp() then 
+        if not turtle.digUp() then 
+            log.verbose("Turtle failed to dig up.", THIS)
+            sleep( 0.5 )
+            return false
+        end
     end
     
-    if not done_turtle_up then 
-        log.verbose("Turtle failed to dig up.", THIS)
-        sleep( 0.5 )
-        return false
-    end
-    
-    state_manager.setProgress()
     state_manager.state.progress.pos_y = state_manager.state.progress.pos_y + 1
+    state_manager.state.progress.dir_x, state_manager.state.progress.dir_z = state_manager.state.current.dir_x, state_manager.state.current.dir_z
     state_manager.saveState()
-    log.debug(pro_util.varToString(state_manager.state.progress.pos_y, "state.progress.pos_y"), THIS)
 
+    log.debug({
+        pro_util.varToString(state_manager.state.progress.pos_z, "state.progress.pos_z"),
+        pro_util.varToString(state_manager.state.progress.pos_x, "state.progress.pos_x"), 
+        pro_util.varToString(state_manager.state.progress.pos_y, "state.progress.pos_y"),
+        pro_util.varToString(state_manager.state.progress.dir_z, "state.progress.dir_z"), 
+        pro_util.varToString(state_manager.state.progress.dir_x, "state.progress.dir_x") 
+    }, THIS) 
     log.verbose("Turtle successfully dig up.", THIS)
     return true
 end  
-
------------ Run -----------
 
 ----------- Return -----------
 return mine_util
