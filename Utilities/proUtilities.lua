@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- Pro Utilities 
--- Version: v0.1.0
+-- Version: v0.1.0-alpha
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/nnMQE7U9
@@ -72,8 +72,6 @@ function pro_util.setupModes()
         file_util.removeFile("/startup", true)
     end 
 end
-
------------ Run -----------
 
 ----------- Return -----------
 return pro_util

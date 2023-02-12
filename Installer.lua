@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- Installer  
--- Version: v0.1.0
+-- Version: v0.1.0-alpha
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/wHmS4pNS
@@ -16,7 +16,7 @@
 --     boolean: formulated as a statement (is_example) 
 -- Functions: Camelcase (functionExample)  
  
-P_VERSION = "0.1.0"
+P_VERSION = "0.1.0-alpha"
 UTIL_PATH = "/ProTools/Utilities"
 
 -- Modules for the Executables

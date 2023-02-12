@@ -1,13 +1,18 @@
 -- ProTools by 4Source 
 -- ExcavatePro  
--- Version: v0.1.0
+-- Version: v0.1.0-alpha
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/UmUvXfqs
 -- Installation: Run installer below for full installation. 
 -- Installer: 'pastebin run wHmS4pNS'
--- Usage: (program name) <program mode>
--- Features: 
+-- Usage: ExcavatePro <program mode>
+-- Program modes: 	'start' to run the setup and start to excavate
+--					'restart' to continue an allready started program with turtle placed at start
+-- 					'continue' to continue an allready started program at current positon. For auto restart feature.
+-- Features: 	- Highly configurable
+-- 				- AUTO Restart when turtle get unloaded 
+-- 				- Configurable Logging 
 
 ----------- Formatting -----------
 -- Constants: Uppercase and Underscores (CONSTANTS_EXAMPEL)
@@ -18,7 +23,7 @@
 
 ----------- Constants -----------
 -- Program Version (MAJOR.MINOR.PATCH-PRERELEASE)
-P_VERSION = "0.1.0"
+P_VERSION = "0.1.0-alpha"
 -- Name of self
 local THIS = "ExcavatePro"
 
@@ -85,25 +90,25 @@ local function excavate()
 				if not inv_manager.collect() then
 					log.info("Returning supplies.", THIS)
 					state_manager.setProgress()
-						state_manager.saveState()
+					state_manager.saveState()
 					inv_manager.returnSupplies()
-					end
+				end
 				-- Try dig forward
 				log.verbose("Check can dig forward.", THIS)
-					if not mine_util.forward() then 
-						log.warn("Can't dig forward!", THIS)
-						state_manager.state.error = true
-						state_manager.saveState()
-						return 
-					end
+				if not mine_util.forward() then 
+					log.warn("Can't dig forward!", THIS)
+					state_manager.state.error = true
+					state_manager.saveState()
+					return 
+				end
 				-- Try move forward
 				log.verbose("Check can move forward.", THIS)
-					if not move_util.forward() then
-						log.warn("Can't move forward!", THIS)
-						state_manager.state.error = true
-						state_manager.saveState()
-						return 
-					end
+				if not move_util.forward() then
+					log.warn("Can't move forward!", THIS)
+					state_manager.state.error = true
+					state_manager.saveState()
+					return 
+				end
 
 				-- Turn left or right depending on the X row
 				if math.fmod(state_manager.state.current.pos_x, 2) == 0 then

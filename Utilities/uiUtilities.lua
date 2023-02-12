@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- UI Utilities  
--- Version: v0.1.0
+-- Version: v0.1.0-alpha
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/iLvyjQYn 
@@ -29,7 +29,7 @@ local THIS = "ui_util"
  
 
 ----------- Functions -----------
---
+-- Make sure the player wants to do it 
 function ui_util.ensure(question)
     log.verbose(question.." (y/n): ", THIS, true)
     local input = io.read()
@@ -44,7 +44,6 @@ end
 
 -- Get Input from UI
 function ui_util.requestInput(input_text, helper_text)
-    
     if not input_text then return false end
  
     -- Setup UI 

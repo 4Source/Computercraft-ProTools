@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- Move Utilities 
--- Version: v0.1.0
+-- Version: v0.1.0-alpha
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/ck1uNLfV 

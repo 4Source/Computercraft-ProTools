@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- File Utilities 
--- Version: v0.1.0
+-- Version: v0.1.0-alpha
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/8nBVnDHu
@@ -182,8 +182,6 @@ function file_util.versionCompatible(v1, v2)
     end 
     return true 
 end
-
------------ Run -----------
 
 ----------- Return -----------
 return file_util

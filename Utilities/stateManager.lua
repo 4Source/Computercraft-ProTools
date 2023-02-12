@@ -1,6 +1,6 @@
 -- ProTools by 4Source
 -- State Manager 
--- Version: v0.1.0
+-- Version: v0.1.0-alpha
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/fkVjJJME
@@ -31,7 +31,7 @@ local THIS = "state_manager"
 -- State Directory
 local state_path, state_file_name = "/ProTools", "/state"
 
--- 
+-- The state
 state_manager.state = {}
 
 
@@ -47,7 +47,7 @@ end
 
 -- Save state in file. return false if went wrong. 
 function state_manager.saveState()
-    log.debug("Save state...", THIS)
+    log.verbose("Save state...", THIS)
     if not file_util.saveJSON(state_path..state_file_name, state_manager.state) then 
         log.warn("Something went wrong saving the state.", THIS)
         return false
@@ -57,7 +57,7 @@ end
 
 -- Save input in state file. return false if went wrong. 
 function state_manager.saveInState(state_in)
-    log.debug("Save state...", THIS)
+    log.verbose("Save state...", THIS)
     if not file_util.saveJSON(state_path..state_file_name, state_in) then 
         log.warn("Something went wrong saving the state.", THIS)
         return false
