@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- Move Utilities 
--- Version: v0.1.0-alpha
+-- Version: v0.1.0-alpha.1
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/ck1uNLfV 
@@ -152,6 +152,7 @@ end
 
 function move_util.goTo( position )
 	while state_manager.state.current.pos_y < position.pos_y do
+        log.debug("Go up.", THIS)
 		if not move_util.up() then
 			sleep( 0.5 )
 		end
@@ -162,6 +163,7 @@ function move_util.goTo( position )
 			move_util.turnLeft()
 		end
 		while state_manager.state.current.pos_x > position.pos_x do
+            log.debug("Go -X.", THIS)
 			if not move_util.forward() then
 				sleep( 0.5 )
 			end
@@ -173,6 +175,7 @@ function move_util.goTo( position )
 			move_util.turnLeft()
 		end
 		while state_manager.state.current.pos_z > position.pos_z do
+            log.debug("Go -Z.", THIS)
 			if not move_util.forward() then
 				sleep( 0.5 )
 			end
@@ -184,6 +187,7 @@ function move_util.goTo( position )
 			move_util.turnLeft()
 		end
 		while state_manager.state.current.pos_z < position.pos_z do
+            log.debug("Go +Z.", THIS)
 			if not move_util.forward() then
 				sleep( 0.5 )
 			end
@@ -195,6 +199,7 @@ function move_util.goTo( position )
 			move_util.turnLeft()
 		end
 		while state_manager.state.current.pos_x < position.pos_x do
+            log.debug("Go +X.", THIS)
 			if not move_util.forward() then
 				sleep( 0.5 )
 			end
@@ -202,6 +207,7 @@ function move_util.goTo( position )
 	end
 	
 	while state_manager.state.current.pos_y > position.pos_y do
+        log.debug("Go down.", THIS)
 		if not move_util.down() then
 			sleep( 0.5 )
 		end
