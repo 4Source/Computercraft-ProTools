@@ -28,8 +28,36 @@ local THIS = "fuel_manager"
  
 
 ----------- Functions -----------
-
------------ Run -----------
+-- Refuel 
+function fuel_manager.refuel( ammount )
+	local fuelLevel = turtle.getFuelLevel()
+	if fuelLevel == "unlimited" then
+		return true
+	end
+	
+	local needed = ammount or (state_manager.state.current.pos_x + state_manager.state.current.pos_z + state_manager.state.current.pos_y + 2)
+	if turtle.getFuelLevel() < needed then
+		local fueled = false
+		for n=1,16 do
+			if turtle.getItemCount(n) > 0 then
+				turtle.select(n)
+				if turtle.refuel(1) then
+					while turtle.getItemCount(n) > 0 and turtle.getFuelLevel() < needed do
+						turtle.refuel(1)
+					end
+					if turtle.getFuelLevel() >= needed then
+						turtle.select(1)
+						return true
+					end
+				end
+			end
+		end
+		turtle.select(1)
+		return false
+	end
+	
+	return true
+end
 
 ----------- Return -----------
 return fuel_manager

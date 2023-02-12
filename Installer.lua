@@ -60,6 +60,11 @@ module_list = {
         name = "mineUtilities",
         path = UTIL_PATH,
         paste_code = "gba5abkG"
+    },
+    {
+        name = "fuelManager",
+        path = UTIL_PATH,
+        paste_code = "dNEyanjZ"
     }
 }
 
