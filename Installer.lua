@@ -62,6 +62,11 @@ module_list = {
         paste_code = "gba5abkG"
     },
     {
+        name = "inventoryManager",
+        path = UTIL_PATH,
+        paste_code = "9RTF5CDF"
+    },
+    {
         name = "fuelManager",
         path = UTIL_PATH,
         paste_code = "dNEyanjZ"
