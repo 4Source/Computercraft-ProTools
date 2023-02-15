@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- UI Utilities  
--- Version: v0.1.0-alpha
+-- Version: v0.1.0-alpha.1
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/iLvyjQYn 
@@ -72,9 +72,27 @@ function ui_util.requestInput(input_text, helper_text)
 end 
 
 -- Wait for any key press
-local function anykey()
-
+function ui_util.anykey()
+    print("Press any key.")
+    io.read()
 end 
+
+-- Show an Countdown. Return false if early exit with key Press.
+function ui_util.countdown(seconds, text)
+    for i = 0, seconds do
+        -- Clear UI
+        term.clear()
+        term.setCursorPos(1, 1)
+        -- Show UI
+        print(shell.getRunningProgram())
+        print("Countdown: "..seconds - i)
+        if text then print(text) end
+        -- Sleep 
+        os.sleep(1)
+    end
+    return true
+end
+
 
 ----------- Return -----------
 return ui_util

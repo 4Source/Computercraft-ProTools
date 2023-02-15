@@ -1,6 +1,6 @@
 -- ProTools by 4Source 
 -- ExcavatePro  
--- Version: v0.1.0-alpha
+-- Version: v0.1.0-alpha.1
 -- License: MIT 
 -- GitHub: https://github.com/4Source/Computercraft-ProTools
 -- Pastebin: https://pastebin.com/UmUvXfqs
@@ -322,7 +322,12 @@ function continue()
 		return
 	end
 	state_manager.log()
-    
+
+	if not ui_util.countdown(config.CONTINUE_COUNTDOWN, "Terminate the Program if you don't want to Continue.") then 
+		log.info("Continue program stopped.", THIS)
+		return
+	end
+
     -- Excavate
     if not fuel_manager.refuel() then
 		log.warn("Out of Fuel", THIS)

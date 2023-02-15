@@ -9,7 +9,8 @@
         },
         {
             "CATEGORY": "Modes",
-            "bAUTO_RESTART": true
+            "bAUTO_RESTART": true,
+            "CONTINUE_COUNTDOWN": 10
         }
     ]
 }
